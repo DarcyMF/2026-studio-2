@@ -20,6 +20,7 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.input.CutsceneInputComponent;
+import com.csse3200.game.rendering.BackgroundRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
@@ -34,7 +35,12 @@ public class CyclopsMinigameArea extends GameArea {
   private static final int CAVE_FLOOR_GROUND_TOP_ROW = 289;
   private static final int CAVE_FLOOR_GROUND_ROWS = 35;
   private static final float FLOOR_SCREEN_FRACTION = 0.2f;
+  private static final float BACKGROUND_PARALLAX = 0.1f;
+  // Row of the background image (0 = top) where its stone floor starts.
+  private static final int CAVE_BACKGROUND_FLOOR_ROW = 812;
 
+  private static final String CAVE_BACKGROUND_TEXTURE =
+      "images/minigames/Cyclops/cave_background.png";
   private static final String CAVE_FLOOR_TEXTURE = "images/minigames/Cyclops/CyclopsCaveFloor.png";
   static final String CAVE_FORMATION_1 = "images/minigames/Cyclops/cave_formation_1.png";
   static final String CAVE_FORMATION_2 = "images/minigames/Cyclops/cave_formation_2.png";
@@ -49,6 +55,7 @@ public class CyclopsMinigameArea extends GameArea {
     "images/ui/transparent.png",
     "images/terrain/Others/platform.png",
     "images/ui/transparent.png",
+    CAVE_BACKGROUND_TEXTURE,
     CAVE_FLOOR_TEXTURE,
     CAVE_FORMATION_1,
     CAVE_FORMATION_2,
@@ -114,6 +121,7 @@ public class CyclopsMinigameArea extends GameArea {
     loadAssets();
 
     spawnTerrain();
+    spawnBackground();
     player = spawnPlayer();
     spawnStatues();
     displayFloor();
@@ -155,6 +163,42 @@ public class CyclopsMinigameArea extends GameArea {
 
     statueYLevel = 3;
     winLocation = new GridPoint2(winTileX(), statueYLevel);
+  }
+
+  private void spawnBackground() {
+    float roomWidth = terrain.tileToWorldPosition(MAP_SIZE.x, 0).x;
+    float floorY = terrain.tileToWorldPosition(0, statueYLevel).y;
+    float viewWidth = cameraComponent.getCamera().viewportWidth;
+
+    Texture image =
+        ServiceLocator.getResourceService().getAsset(CAVE_BACKGROUND_TEXTURE, Texture.class);
+    float width = viewWidth + BACKGROUND_PARALLAX * (roomWidth - viewWidth);
+    float height = width * image.getHeight() / image.getWidth();
+    float floorHeight =
+        height * (image.getHeight() - CAVE_BACKGROUND_FLOOR_ROW) / image.getHeight();
+    Vector2 backgroundPos =
+        new Vector2(-(1f - BACKGROUND_PARALLAX) * viewWidth / 2f, floorY - floorHeight);
+
+    BackgroundRenderComponent backgroundComponent =
+        new BackgroundRenderComponent(
+            cameraComponent, backgroundPos, terrain.tileToWorldPosition(MAP_SIZE));
+    backgroundComponent.addLayer(
+        CAVE_BACKGROUND_TEXTURE,
+        new Vector2(BACKGROUND_PARALLAX, 0f),
+        width,
+        height,
+        new Vector2(0f, 0f),
+        new Vector2(0f, 0f),
+        RepeatMode.NONE,
+        0f,
+        1f,
+        false,
+        0,
+        -1);
+
+    Entity background = new Entity().addComponent(backgroundComponent);
+    background.setPosition(backgroundPos);
+    spawnEntity(background);
   }
 
   /**
