@@ -25,6 +25,7 @@ public class ItemFactory {
   private static final float ITEM_HEIGHT = 0.85f;
   public static final String GOLD_TEXTURE = "images/items/gold_coin.png";
   public static final String WHEEL_TOKEN_TEXTURE = "images/minigames/spinthewheel/wheel-token.png";
+  private static final float WHEEL_TOKEN_GLOW_DIST = 2f;
 
   /**
    * Creates a world entity for an item using the texture from its {@code ItemType}.
@@ -164,12 +165,19 @@ public class ItemFactory {
    * @return wheel token pickup entity
    */
   public static Entity createWheelToken() {
+    Color tokenGlowColour = new Color(1f, 0.84f, 0f, 0.7f);
     Entity token =
         new Entity()
             .addComponent(new TextureRenderComponent(WHEEL_TOKEN_TEXTURE))
             .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
             .addComponent(new HitboxComponent().setLayer(PhysicsLayer.DEFAULT))
-            .addComponent(new WheelTokenPickupComponent());
+            .addComponent(new WheelTokenPickupComponent())
+            .addComponent(
+                new PointLightComponent(
+                    ServiceLocator.getLightingService().getEngine().getRayHandler(),
+                    LightingDefaults.RAYS,
+                    tokenGlowColour,
+                    WHEEL_TOKEN_GLOW_DIST));
 
     token.getComponent(TextureRenderComponent.class).scaleEntity();
     token.scaleHeight(ITEM_HEIGHT);
