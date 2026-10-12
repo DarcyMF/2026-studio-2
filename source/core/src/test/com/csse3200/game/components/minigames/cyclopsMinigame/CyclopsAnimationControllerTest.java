@@ -19,6 +19,8 @@ import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -167,6 +169,35 @@ class CyclopsAnimationControllerTest {
     assertEquals(HOME, cyclops.getPosition());
     assertEquals("sleep", animator.getCurrentAnimation());
     assertFalse(animator.isFlipX());
+  }
+
+  @Test
+  void announcesEachMomentOfTheAttackInOrder() {
+    List<String> moments = new ArrayList<>();
+    String[] events = {
+      CyclopsAnimationController.WOKE_UP_EVENT,
+      CyclopsAnimationController.LANDED_EVENT,
+      CyclopsAnimationController.CLUB_LANDED_EVENT,
+      CyclopsAnimationController.FELL_ASLEEP_EVENT
+    };
+    for (String event : events) {
+      cyclops.getEvents().addListener(event, () -> moments.add(event));
+    }
+
+    runToPlayer();
+    step(1f);
+    step(1f);
+    minigameEvents.trigger(CyclopsMinigameLogic.CYCLOPS_SLEEP_EVENT);
+    step(100f);
+
+    assertEquals(
+        List.of(
+            CyclopsAnimationController.WOKE_UP_EVENT,
+            CyclopsAnimationController.LANDED_EVENT,
+            CyclopsAnimationController.CLUB_LANDED_EVENT,
+            CyclopsAnimationController.LANDED_EVENT,
+            CyclopsAnimationController.FELL_ASLEEP_EVENT),
+        moments);
   }
 
   @Test
