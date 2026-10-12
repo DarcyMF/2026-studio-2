@@ -20,7 +20,7 @@ public class CyclopsAnimationController extends Component {
   static final float JUMP_HEIGHT = 3f;
 
   static final String WOKE_UP_EVENT = "wokeUp";
-  static final String LANDED_EVENT = "landed";
+  public static final String LANDED_EVENT = "landed";
   static final String CLUB_LANDED_EVENT = "clubLanded";
   static final String FELL_ASLEEP_EVENT = "fellAsleep";
 

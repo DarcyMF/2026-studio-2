@@ -146,9 +146,9 @@ public class CyclopsMinigameArea extends GameArea {
     spawnBackground();
     player = spawnPlayer();
     spawnStatues();
-    spawnSleepingCyclops();
+    Entity cyclops = spawnSleepingCyclops();
     displayFloor();
-    spawnCamera();
+    spawnCamera(cyclops);
 
     playMusic();
 
@@ -228,16 +228,15 @@ public class CyclopsMinigameArea extends GameArea {
    * Keeps the camera on the player's x, clamped so the view never passes the room's ends. The
    * height is fixed so the floor line sits a fifth of the way up the screen.
    */
-  private void spawnCamera() {
+  private void spawnCamera(Entity cyclops) {
     float roomWidth = terrain.tileToWorldPosition(MAP_SIZE.x, 0).x;
     float floorY = terrain.tileToWorldPosition(0, statueYLevel).y;
     float viewHeight = cameraComponent.getCamera().viewportHeight;
     float cameraY = floorY + (0.5f - FLOOR_SCREEN_FRACTION) * viewHeight;
-    Entity cameraEntityHolder =
-        new Entity()
-            .addComponent(
-                new CyclopsCameraFollowComponent(
-                    player, cameraComponent.getCamera(), roomWidth, cameraY));
+    CyclopsCameraFollowComponent follow =
+        new CyclopsCameraFollowComponent(player, cameraComponent.getCamera(), roomWidth, cameraY);
+    cyclops.getEvents().addListener(CyclopsAnimationController.LANDED_EVENT, follow::shake);
+    Entity cameraEntityHolder = new Entity().addComponent(follow);
     spawnEntity(cameraEntityHolder);
     this.cameraComponent.setTarget(cameraEntityHolder);
   }
@@ -302,7 +301,7 @@ public class CyclopsMinigameArea extends GameArea {
    * room. Both sit just behind the cave formations so the player and formations draw in front of
    * them.
    */
-  private void spawnSleepingCyclops() {
+  private Entity spawnSleepingCyclops() {
     Vector2 middle = terrain.tileToWorldPosition(MAP_SIZE.x / 2, statueYLevel);
 
     TextureRenderComponent rockRender =
@@ -349,6 +348,7 @@ public class CyclopsMinigameArea extends GameArea {
         middle.x - CYCLOPS_FRAME_WIDTH / 2f,
         rockTop - SLEEPING_CYCLOPS_SINK_PIXELS * rockPixelSize);
     spawnEntity(cyclops);
+    return cyclops;
   }
 
   /**
