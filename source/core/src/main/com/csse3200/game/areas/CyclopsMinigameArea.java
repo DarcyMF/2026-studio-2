@@ -3,6 +3,8 @@ package com.csse3200.game.areas;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
@@ -20,7 +22,9 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.input.CutsceneInputComponent;
+import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.BackgroundRenderComponent;
+import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
@@ -49,6 +53,15 @@ public class CyclopsMinigameArea extends GameArea {
     CAVE_FORMATION_1, CAVE_FORMATION_2, CAVE_FORMATION_3
   };
 
+  private static final String CAVE_ROCK_PLATFORM =
+      "images/minigames/Cyclops/cave_rock_platform.png";
+  private static final String CYCLOPS_ATLAS = "images/minigames/Cyclops/cyclops.atlas";
+  private static final float CAVE_ROCK_WIDTH = 7.5f;
+  // World width of the sleeping cyclops, from his Zzz to his back.
+  private static final float SLEEPING_CYCLOPS_WIDTH = 4f;
+  // Rock pixels he sinks into its top face, so he stands on it rather than on its back edge.
+  private static final int SLEEPING_CYCLOPS_SINK_PIXELS = 5;
+
   private static final String[] cyclopsMinigameTextures = {
     "images/backgrounds/black_roof.png",
     "images/health/purple_heart.png",
@@ -60,13 +73,16 @@ public class CyclopsMinigameArea extends GameArea {
     CAVE_FORMATION_1,
     CAVE_FORMATION_2,
     CAVE_FORMATION_3,
+    CAVE_ROCK_PLATFORM,
     "images/health/PixelArt_HeartBack.png",
     "images/health/Damaged_heart.png",
     "images/health/Last_Health.png",
     "images/minigames/Cyclops/timing_bar_frame.png"
   };
 
-  private static final String[] cyclopsMinigameTexturesAtlases = {"images/player/player.atlas"};
+  private static final String[] cyclopsMinigameTexturesAtlases = {
+    "images/player/player.atlas", CYCLOPS_ATLAS
+  };
 
   private static final String[] cyclopsMinigameMusic = {
     "sounds/minigames/cyclops/cave_background_noise.mp3"
@@ -124,6 +140,7 @@ public class CyclopsMinigameArea extends GameArea {
     spawnBackground();
     player = spawnPlayer();
     spawnStatues();
+    spawnSleepingCyclops();
     displayFloor();
     spawnCamera();
 
@@ -272,6 +289,46 @@ public class CyclopsMinigameArea extends GameArea {
       GridPoint2 gapLocation = new GridPoint2(gapTileX(i), statueYLevel);
       statueGapLocations.add(gapLocation);
     }
+  }
+
+  /**
+   * Spawns the cyclops dozing on his feet, club on his shoulder, on a rock in the middle of the
+   * room. Both sit just behind the cave formations so the player and formations draw in front of
+   * them.
+   */
+  private void spawnSleepingCyclops() {
+    Vector2 middle = terrain.tileToWorldPosition(MAP_SIZE.x / 2, statueYLevel);
+
+    TextureRenderComponent rockRender = new TextureRenderComponent(CAVE_ROCK_PLATFORM);
+    Entity rock = new Entity().addComponent(rockRender);
+    rockRender.scaleEntity();
+    rock.scaleWidth(CAVE_ROCK_WIDTH);
+    rock.setPosition(middle.x - CAVE_ROCK_WIDTH / 2f, middle.y + 2f * STATUE_DEPTH_OFFSET);
+    spawnEntity(rock);
+
+    AnimationRenderComponent cyclopsAnimator =
+        new AnimationRenderComponent(
+            ServiceLocator.getResourceService().getAsset(CYCLOPS_ATLAS, TextureAtlas.class)) {
+          // He stands on top of the rock, so draw him just in front of it rather than by his
+          // height.
+          @Override
+          public float getZIndex() {
+            return rockRender.getZIndex() + STATUE_DEPTH_OFFSET / 2f;
+          }
+        };
+    cyclopsAnimator.addAnimation("sleep", 0.1f, Animation.PlayMode.LOOP);
+    Entity cyclops = new Entity().addComponent(cyclopsAnimator);
+    cyclopsAnimator.scaleEntity();
+    cyclops.scaleWidth(SLEEPING_CYCLOPS_WIDTH);
+    cyclopsAnimator.startAnimation("sleep");
+    Texture rockImage =
+        ServiceLocator.getResourceService().getAsset(CAVE_ROCK_PLATFORM, Texture.class);
+    float rockPixelSize = CAVE_ROCK_WIDTH / rockImage.getWidth();
+    float rockTop = rock.getPosition().y + rock.getScale().y;
+    cyclops.setPosition(
+        middle.x - SLEEPING_CYCLOPS_WIDTH / 2f,
+        rockTop - SLEEPING_CYCLOPS_SINK_PIXELS * rockPixelSize);
+    spawnEntity(cyclops);
   }
 
   /**

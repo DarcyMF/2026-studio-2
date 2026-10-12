@@ -37,6 +37,7 @@ public class CyclopsFloorRenderComponent extends RenderComponent {
   public int getLayer() {
     return 0;
   }
+
   @Override
   public float getZIndex() {
     return 0f;

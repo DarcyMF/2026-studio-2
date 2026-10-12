@@ -1,0 +1,264 @@
+cyclops_sleep.png
+size: 1440, 500
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+default
+  rotate: false
+  xy: 77, 0
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: -1
+sleep
+  rotate: false
+  xy: 77, 0
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 0
+sleep
+  rotate: false
+  xy: 257, 0
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 1
+sleep
+  rotate: false
+  xy: 437, 0
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 2
+sleep
+  rotate: false
+  xy: 617, 0
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 3
+sleep
+  rotate: false
+  xy: 797, 0
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 4
+sleep
+  rotate: false
+  xy: 977, 0
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 5
+sleep
+  rotate: false
+  xy: 1157, 0
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 6
+sleep
+  rotate: false
+  xy: 1337, 0
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 7
+sleep
+  rotate: false
+  xy: 77, 100
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 8
+sleep
+  rotate: false
+  xy: 257, 100
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 9
+sleep
+  rotate: false
+  xy: 437, 100
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 10
+sleep
+  rotate: false
+  xy: 617, 100
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 11
+sleep
+  rotate: false
+  xy: 797, 100
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 12
+sleep
+  rotate: false
+  xy: 977, 100
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 13
+sleep
+  rotate: false
+  xy: 1157, 100
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 14
+sleep
+  rotate: false
+  xy: 1337, 100
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 15
+sleep
+  rotate: false
+  xy: 77, 200
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 16
+sleep
+  rotate: false
+  xy: 257, 200
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 17
+sleep
+  rotate: false
+  xy: 437, 200
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 18
+sleep
+  rotate: false
+  xy: 617, 200
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 19
+sleep
+  rotate: false
+  xy: 797, 200
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 20
+sleep
+  rotate: false
+  xy: 977, 200
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 21
+sleep
+  rotate: false
+  xy: 1157, 200
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 22
+sleep
+  rotate: false
+  xy: 1337, 200
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 23
+sleep
+  rotate: false
+  xy: 77, 300
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 24
+sleep
+  rotate: false
+  xy: 257, 300
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 25
+sleep
+  rotate: false
+  xy: 437, 300
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 26
+sleep
+  rotate: false
+  xy: 617, 300
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 27
+sleep
+  rotate: false
+  xy: 797, 300
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 28
+sleep
+  rotate: false
+  xy: 977, 300
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 29
+sleep
+  rotate: false
+  xy: 1157, 300
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 30
+sleep
+  rotate: false
+  xy: 1337, 300
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 31
+sleep
+  rotate: false
+  xy: 77, 400
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 32
+sleep
+  rotate: false
+  xy: 257, 400
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 33
+sleep
+  rotate: false
+  xy: 437, 400
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 34
+sleep
+  rotate: false
+  xy: 617, 400
+  size: 67, 99
+  orig: 67, 99
+  offset: 0, 0
+  index: 35
