@@ -17,6 +17,7 @@ import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsCameraFollo
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsFloorRenderComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsHurtSoundComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsMinigameLogic;
+import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsSoundComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.TimingBarDisplay;
 import com.csse3200.game.components.minigames.cyclopsMinigame.TimingBarLogic;
 import com.csse3200.game.entities.Entity;
@@ -106,7 +107,11 @@ public class CyclopsMinigameArea extends GameArea {
     "sounds/hurt_player_1.wav",
     "sounds/hurt_player_2.wav",
     "sounds/hurt_player_3.wav",
-    "sounds/hurt_player_4.wav"
+    "sounds/hurt_player_4.wav",
+    CyclopsSoundComponent.SNORE_PATH,
+    CyclopsSoundComponent.ROAR_PATH,
+    CyclopsSoundComponent.LANDING_PATH,
+    CyclopsSoundComponent.CLUB_HIT_PATH
   };
 
   private final TerrainFactory terrainFactory;
@@ -332,7 +337,8 @@ public class CyclopsMinigameArea extends GameArea {
         new Entity()
             .addComponent(cyclopsAnimator)
             .addComponent(
-                new CyclopsAnimationController(player, middle.y + STATUE_DEPTH_OFFSET / 2f));
+                new CyclopsAnimationController(player, middle.y + STATUE_DEPTH_OFFSET / 2f))
+            .addComponent(new CyclopsSoundComponent());
     cyclopsAnimator.scaleEntity();
     cyclops.scaleWidth(CYCLOPS_FRAME_WIDTH);
     Texture rockImage =

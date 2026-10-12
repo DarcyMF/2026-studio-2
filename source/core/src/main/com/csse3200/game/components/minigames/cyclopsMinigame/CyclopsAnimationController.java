@@ -19,6 +19,11 @@ public class CyclopsAnimationController extends Component {
 
   static final float JUMP_HEIGHT = 3f;
 
+  static final String WOKE_UP_EVENT = "wokeUp";
+  static final String LANDED_EVENT = "landed";
+  static final String CLUB_LANDED_EVENT = "clubLanded";
+  static final String FELL_ASLEEP_EVENT = "fellAsleep";
+
   enum State {
     ASLEEP,
     CHARGING,
@@ -79,6 +84,7 @@ public class CyclopsAnimationController extends Component {
     face(target.getCenterPosition().x);
     animator.startAnimation("charge_start");
     state = State.CHARGING;
+    entity.getEvents().trigger(WOKE_UP_EVENT);
   }
 
   private void returnHome() {
@@ -113,12 +119,14 @@ public class CyclopsAnimationController extends Component {
     if (progress < 1f) {
       return;
     }
+    entity.getEvents().trigger(LANDED_EVENT);
     if (state == State.JUMPING) {
       startSwing();
     } else {
       animator.setFlipX(false);
       animator.startAnimation("sleep");
       state = State.ASLEEP;
+      entity.getEvents().trigger(FELL_ASLEEP_EVENT);
     }
   }
 
@@ -134,6 +142,7 @@ public class CyclopsAnimationController extends Component {
     attackTime += delta;
     if (!hitLanded && attackTime >= IMPACT_FRAME * ATTACK_FRAME_TIME) {
       hitLanded = true;
+      entity.getEvents().trigger(CLUB_LANDED_EVENT);
       ServiceLocator.getCyclopsMinigameEventHandler()
           .trigger(CyclopsMinigameLogic.CYCLOPS_HIT_EVENT);
     }
