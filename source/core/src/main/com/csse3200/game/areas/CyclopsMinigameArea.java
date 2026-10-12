@@ -58,8 +58,8 @@ public class CyclopsMinigameArea extends GameArea {
       "images/minigames/Cyclops/cave_rock_platform.png";
   private static final String CYCLOPS_ATLAS = "images/minigames/Cyclops/cyclops.atlas";
   private static final float CAVE_ROCK_WIDTH = 7.5f;
-  // World width of the sleeping cyclops, from his Zzz to his back.
-  private static final float SLEEPING_CYCLOPS_WIDTH = 4f;
+  private static final float CYCLOPS_FRAME_WIDTH = 10.75f;
+  private static final float CYCLOPS_BODY_COLUMN = 114f;
   // Rock pixels he sinks into its top face, so he stands on it rather than on its back edge.
   private static final int SLEEPING_CYCLOPS_SINK_PIXELS = 5;
 
@@ -317,18 +317,18 @@ public class CyclopsMinigameArea extends GameArea {
     AnimationRenderComponent cyclopsAnimator =
         new AnimationRenderComponent(
             ServiceLocator.getResourceService().getAsset(CYCLOPS_ATLAS, TextureAtlas.class));
-    cyclopsAnimator.addAnimation("sleep", 0.1f, Animation.PlayMode.LOOP);
-    cyclopsAnimator.addAnimation("idle", 0.083f, Animation.PlayMode.LOOP);
+    cyclopsAnimator.addAnimation("sleep", 0.1f, Animation.PlayMode.LOOP, CYCLOPS_BODY_COLUMN, 0f);
+    cyclopsAnimator.addAnimation("idle", 0.083f, Animation.PlayMode.LOOP, CYCLOPS_BODY_COLUMN, 0f);
     Entity cyclops =
         new Entity().addComponent(cyclopsAnimator).addComponent(new CyclopsAnimationController());
     cyclopsAnimator.scaleEntity();
-    cyclops.scaleWidth(SLEEPING_CYCLOPS_WIDTH);
+    cyclops.scaleWidth(CYCLOPS_FRAME_WIDTH);
     Texture rockImage =
         ServiceLocator.getResourceService().getAsset(CAVE_ROCK_PLATFORM, Texture.class);
     float rockPixelSize = CAVE_ROCK_WIDTH / rockImage.getWidth();
     float rockTop = rock.getPosition().y + rock.getScale().y;
     cyclops.setPosition(
-        middle.x - SLEEPING_CYCLOPS_WIDTH / 2f,
+        middle.x - CYCLOPS_FRAME_WIDTH / 2f,
         rockTop - SLEEPING_CYCLOPS_SINK_PIXELS * rockPixelSize);
     spawnEntity(cyclops);
   }
