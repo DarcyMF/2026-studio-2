@@ -12,6 +12,7 @@ import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.CameraComponent;
 import com.csse3200.game.components.GameVolume;
 import com.csse3200.game.components.TextBoxComponent;
+import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsAnimationController;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsCameraFollowComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsFloorRenderComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsHurtSoundComponent;
@@ -299,7 +300,14 @@ public class CyclopsMinigameArea extends GameArea {
   private void spawnSleepingCyclops() {
     Vector2 middle = terrain.tileToWorldPosition(MAP_SIZE.x / 2, statueYLevel);
 
-    TextureRenderComponent rockRender = new TextureRenderComponent(CAVE_ROCK_PLATFORM);
+    TextureRenderComponent rockRender =
+        new TextureRenderComponent(CAVE_ROCK_PLATFORM) {
+          // Sorted by its top rather than its base, so the cyclops standing on it draws in front.
+          @Override
+          public float getZIndex() {
+            return -(entity.getPosition().y + entity.getScale().y);
+          }
+        };
     Entity rock = new Entity().addComponent(rockRender);
     rockRender.scaleEntity();
     rock.scaleWidth(CAVE_ROCK_WIDTH);
@@ -308,19 +316,13 @@ public class CyclopsMinigameArea extends GameArea {
 
     AnimationRenderComponent cyclopsAnimator =
         new AnimationRenderComponent(
-            ServiceLocator.getResourceService().getAsset(CYCLOPS_ATLAS, TextureAtlas.class)) {
-          // He stands on top of the rock, so draw him just in front of it rather than by his
-          // height.
-          @Override
-          public float getZIndex() {
-            return rockRender.getZIndex() + STATUE_DEPTH_OFFSET / 2f;
-          }
-        };
+            ServiceLocator.getResourceService().getAsset(CYCLOPS_ATLAS, TextureAtlas.class));
     cyclopsAnimator.addAnimation("sleep", 0.1f, Animation.PlayMode.LOOP);
-    Entity cyclops = new Entity().addComponent(cyclopsAnimator);
+    cyclopsAnimator.addAnimation("idle", 0.083f, Animation.PlayMode.LOOP);
+    Entity cyclops =
+        new Entity().addComponent(cyclopsAnimator).addComponent(new CyclopsAnimationController());
     cyclopsAnimator.scaleEntity();
     cyclops.scaleWidth(SLEEPING_CYCLOPS_WIDTH);
-    cyclopsAnimator.startAnimation("sleep");
     Texture rockImage =
         ServiceLocator.getResourceService().getAsset(CAVE_ROCK_PLATFORM, Texture.class);
     float rockPixelSize = CAVE_ROCK_WIDTH / rockImage.getWidth();
