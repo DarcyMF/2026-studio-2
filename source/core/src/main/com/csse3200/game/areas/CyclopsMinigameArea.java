@@ -319,8 +319,20 @@ public class CyclopsMinigameArea extends GameArea {
             ServiceLocator.getResourceService().getAsset(CYCLOPS_ATLAS, TextureAtlas.class));
     cyclopsAnimator.addAnimation("sleep", 0.1f, Animation.PlayMode.LOOP, CYCLOPS_BODY_COLUMN, 0f);
     cyclopsAnimator.addAnimation("idle", 0.083f, Animation.PlayMode.LOOP, CYCLOPS_BODY_COLUMN, 0f);
+    cyclopsAnimator.addAnimation(
+        "charge_start", 0.073f, Animation.PlayMode.NORMAL, CYCLOPS_BODY_COLUMN, 0f);
+    cyclopsAnimator.addAnimation("jump", 0.1f, Animation.PlayMode.LOOP, CYCLOPS_BODY_COLUMN, 0f);
+    cyclopsAnimator.addAnimation(
+        "attack",
+        CyclopsAnimationController.ATTACK_FRAME_TIME,
+        Animation.PlayMode.NORMAL,
+        CYCLOPS_BODY_COLUMN,
+        0f);
     Entity cyclops =
-        new Entity().addComponent(cyclopsAnimator).addComponent(new CyclopsAnimationController());
+        new Entity()
+            .addComponent(cyclopsAnimator)
+            .addComponent(
+                new CyclopsAnimationController(player, middle.y + STATUE_DEPTH_OFFSET / 2f));
     cyclopsAnimator.scaleEntity();
     cyclops.scaleWidth(CYCLOPS_FRAME_WIDTH);
     Texture rockImage =
