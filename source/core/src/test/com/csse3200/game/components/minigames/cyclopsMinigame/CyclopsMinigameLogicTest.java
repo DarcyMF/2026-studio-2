@@ -118,6 +118,9 @@ public class CyclopsMinigameLogicTest {
     minigameLogic.changeState(CyclopsMinigameLogic.State.PRE_MOVE);
     minigameLogic.update();
     minigameLogic.update();
+    if (!hit) {
+      minigameLogic.takeCyclopsHit();
+    }
   }
 
   @Test
@@ -258,8 +261,59 @@ public class CyclopsMinigameLogicTest {
 
     minigameLogic.update();
     verify(player).setPosition(lossPos);
+    assertEquals(CyclopsMinigameLogic.State.CAUGHT, minigameLogic.state);
+    verify(events, never()).trigger("hurt");
+
+    minigameLogic.takeCyclopsHit();
     verify(events).trigger("hurt");
     assertEquals(CyclopsMinigameLogic.State.LOSS, minigameLogic.state);
+  }
+
+  @Test
+  void missOnlyCostsHealthOnceTheCyclopsHits() {
+    minigameLogic.setSafeLocations(List.of(new GridPoint2(1, 0)));
+    minigameLogic.setLossLocations(List.of(new GridPoint2(2, 0)));
+    CombatStatsComponent stats = givePlayerHealth(10);
+    when(timingBarLogic.checkHit()).thenReturn(false);
+    when(gameTime.getDeltaTime()).thenReturn(10f);
+
+    minigameLogic.changeState(CyclopsMinigameLogic.State.PRE_MOVE);
+    minigameLogic.update();
+    minigameLogic.update();
+    assertEquals(CyclopsMinigameLogic.State.CAUGHT, minigameLogic.state);
+    assertEquals(10, stats.getHealth());
+
+    minigameLogic.takeCyclopsHit();
+    minigameLogic.takeCyclopsHit();
+    assertEquals(10 - CyclopsMinigameLogic.MISS_DAMAGE, stats.getHealth());
+  }
+
+  @Test
+  void caughtTakesTheHitAnywayIfTheCyclopsNeverArrives() {
+    minigameLogic.setSafeLocations(List.of(new GridPoint2(1, 0)));
+    minigameLogic.setLossLocations(List.of(new GridPoint2(2, 0)));
+    CombatStatsComponent stats = givePlayerHealth(10);
+    minigameLogic.changeState(CyclopsMinigameLogic.State.CAUGHT);
+
+    when(gameTime.getDeltaTime()).thenReturn(CyclopsMinigameLogic.CAUGHT_TIMEOUT / 2);
+    minigameLogic.update();
+    assertEquals(CyclopsMinigameLogic.State.CAUGHT, minigameLogic.state);
+
+    minigameLogic.update();
+    assertEquals(CyclopsMinigameLogic.State.LOSS, minigameLogic.state);
+    assertEquals(10 - CyclopsMinigameLogic.MISS_DAMAGE, stats.getHealth());
+  }
+
+  @Test
+  void cyclopsHitOutsideACatchIsIgnored() {
+    CombatStatsComponent stats = givePlayerHealth(10);
+    minigameLogic.changeState(CyclopsMinigameLogic.State.PLAY);
+
+    minigameLogic.takeCyclopsHit();
+
+    assertEquals(10, stats.getHealth());
+    assertEquals(CyclopsMinigameLogic.State.PLAY, minigameLogic.state);
+    verify(events, never()).trigger("hurt");
   }
 
   @Test
