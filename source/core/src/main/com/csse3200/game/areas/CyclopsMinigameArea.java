@@ -3,6 +3,8 @@ package com.csse3200.game.areas;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
@@ -10,16 +12,21 @@ import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.CameraComponent;
 import com.csse3200.game.components.GameVolume;
 import com.csse3200.game.components.TextBoxComponent;
+import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsAnimationController;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsCameraFollowComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsFloorRenderComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsHurtSoundComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsMinigameLogic;
+import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsSoundComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.TimingBarDisplay;
 import com.csse3200.game.components.minigames.cyclopsMinigame.TimingBarLogic;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
 import com.csse3200.game.input.CutsceneInputComponent;
+import com.csse3200.game.rendering.AnimationRenderComponent;
+import com.csse3200.game.rendering.BackgroundRenderComponent;
+import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
@@ -34,7 +41,12 @@ public class CyclopsMinigameArea extends GameArea {
   private static final int CAVE_FLOOR_GROUND_TOP_ROW = 289;
   private static final int CAVE_FLOOR_GROUND_ROWS = 35;
   private static final float FLOOR_SCREEN_FRACTION = 0.2f;
+  private static final float BACKGROUND_PARALLAX = 0.1f;
+  // Row of the background image (0 = top) where its stone floor starts.
+  private static final int CAVE_BACKGROUND_FLOOR_ROW = 812;
 
+  private static final String CAVE_BACKGROUND_TEXTURE =
+      "images/minigames/Cyclops/cave_background.png";
   private static final String CAVE_FLOOR_TEXTURE = "images/minigames/Cyclops/CyclopsCaveFloor.png";
   static final String CAVE_FORMATION_1 = "images/minigames/Cyclops/cave_formation_1.png";
   static final String CAVE_FORMATION_2 = "images/minigames/Cyclops/cave_formation_2.png";
@@ -43,23 +55,36 @@ public class CyclopsMinigameArea extends GameArea {
     CAVE_FORMATION_1, CAVE_FORMATION_2, CAVE_FORMATION_3
   };
 
+  private static final String CAVE_ROCK_PLATFORM =
+      "images/minigames/Cyclops/cave_rock_platform.png";
+  private static final String CYCLOPS_ATLAS = "images/minigames/Cyclops/cyclops.atlas";
+  private static final float CAVE_ROCK_WIDTH = 7.5f;
+  private static final float CYCLOPS_FRAME_WIDTH = 10.75f;
+  private static final float CYCLOPS_BODY_COLUMN = 114f;
+  // Rock pixels he sinks into its top face, so he stands on it rather than on its back edge.
+  private static final int SLEEPING_CYCLOPS_SINK_PIXELS = 5;
+
   private static final String[] cyclopsMinigameTextures = {
     "images/backgrounds/black_roof.png",
     "images/health/purple_heart.png",
     "images/ui/transparent.png",
     "images/terrain/Others/platform.png",
     "images/ui/transparent.png",
+    CAVE_BACKGROUND_TEXTURE,
     CAVE_FLOOR_TEXTURE,
     CAVE_FORMATION_1,
     CAVE_FORMATION_2,
     CAVE_FORMATION_3,
+    CAVE_ROCK_PLATFORM,
     "images/health/PixelArt_HeartBack.png",
     "images/health/Damaged_heart.png",
     "images/health/Last_Health.png",
     "images/minigames/Cyclops/timing_bar_frame.png"
   };
 
-  private static final String[] cyclopsMinigameTexturesAtlases = {"images/player/player.atlas"};
+  private static final String[] cyclopsMinigameTexturesAtlases = {
+    "images/player/player.atlas", CYCLOPS_ATLAS
+  };
 
   private static final String[] cyclopsMinigameMusic = {
     "sounds/minigames/cyclops/cave_background_noise.mp3"
@@ -82,7 +107,11 @@ public class CyclopsMinigameArea extends GameArea {
     "sounds/hurt_player_1.wav",
     "sounds/hurt_player_2.wav",
     "sounds/hurt_player_3.wav",
-    "sounds/hurt_player_4.wav"
+    "sounds/hurt_player_4.wav",
+    CyclopsSoundComponent.SNORE_PATH,
+    CyclopsSoundComponent.ROAR_PATH,
+    CyclopsSoundComponent.LANDING_PATH,
+    CyclopsSoundComponent.CLUB_HIT_PATH
   };
 
   private final TerrainFactory terrainFactory;
@@ -114,10 +143,12 @@ public class CyclopsMinigameArea extends GameArea {
     loadAssets();
 
     spawnTerrain();
+    spawnBackground();
     player = spawnPlayer();
     spawnStatues();
+    Entity cyclops = spawnSleepingCyclops();
     displayFloor();
-    spawnCamera();
+    spawnCamera(cyclops);
 
     playMusic();
 
@@ -157,20 +188,55 @@ public class CyclopsMinigameArea extends GameArea {
     winLocation = new GridPoint2(winTileX(), statueYLevel);
   }
 
+  private void spawnBackground() {
+    float roomWidth = terrain.tileToWorldPosition(MAP_SIZE.x, 0).x;
+    float floorY = terrain.tileToWorldPosition(0, statueYLevel).y;
+    float viewWidth = cameraComponent.getCamera().viewportWidth;
+
+    Texture image =
+        ServiceLocator.getResourceService().getAsset(CAVE_BACKGROUND_TEXTURE, Texture.class);
+    float width = viewWidth + BACKGROUND_PARALLAX * (roomWidth - viewWidth);
+    float height = width * image.getHeight() / image.getWidth();
+    float floorHeight =
+        height * (image.getHeight() - CAVE_BACKGROUND_FLOOR_ROW) / image.getHeight();
+    Vector2 backgroundPos =
+        new Vector2(-(1f - BACKGROUND_PARALLAX) * viewWidth / 2f, floorY - floorHeight);
+
+    BackgroundRenderComponent backgroundComponent =
+        new BackgroundRenderComponent(
+            cameraComponent, backgroundPos, terrain.tileToWorldPosition(MAP_SIZE));
+    backgroundComponent.addLayer(
+        CAVE_BACKGROUND_TEXTURE,
+        new Vector2(BACKGROUND_PARALLAX, 0f),
+        width,
+        height,
+        new Vector2(0f, 0f),
+        new Vector2(0f, 0f),
+        RepeatMode.NONE,
+        0f,
+        1f,
+        false,
+        0,
+        -1);
+
+    Entity background = new Entity().addComponent(backgroundComponent);
+    background.setPosition(backgroundPos);
+    spawnEntity(background);
+  }
+
   /**
    * Keeps the camera on the player's x, clamped so the view never passes the room's ends. The
    * height is fixed so the floor line sits a fifth of the way up the screen.
    */
-  private void spawnCamera() {
+  private void spawnCamera(Entity cyclops) {
     float roomWidth = terrain.tileToWorldPosition(MAP_SIZE.x, 0).x;
     float floorY = terrain.tileToWorldPosition(0, statueYLevel).y;
     float viewHeight = cameraComponent.getCamera().viewportHeight;
     float cameraY = floorY + (0.5f - FLOOR_SCREEN_FRACTION) * viewHeight;
-    Entity cameraEntityHolder =
-        new Entity()
-            .addComponent(
-                new CyclopsCameraFollowComponent(
-                    player, cameraComponent.getCamera(), roomWidth, cameraY));
+    CyclopsCameraFollowComponent follow =
+        new CyclopsCameraFollowComponent(player, cameraComponent.getCamera(), roomWidth, cameraY);
+    cyclops.getEvents().addListener(CyclopsAnimationController.LANDED_EVENT, follow::shake);
+    Entity cameraEntityHolder = new Entity().addComponent(follow);
     spawnEntity(cameraEntityHolder);
     this.cameraComponent.setTarget(cameraEntityHolder);
   }
@@ -228,6 +294,61 @@ public class CyclopsMinigameArea extends GameArea {
       GridPoint2 gapLocation = new GridPoint2(gapTileX(i), statueYLevel);
       statueGapLocations.add(gapLocation);
     }
+  }
+
+  /**
+   * Spawns the cyclops dozing on his feet, club on his shoulder, on a rock in the middle of the
+   * room. Both sit just behind the cave formations so the player and formations draw in front of
+   * them.
+   */
+  private Entity spawnSleepingCyclops() {
+    Vector2 middle = terrain.tileToWorldPosition(MAP_SIZE.x / 2, statueYLevel);
+
+    TextureRenderComponent rockRender =
+        new TextureRenderComponent(CAVE_ROCK_PLATFORM) {
+          // Sorted by its top rather than its base, so the cyclops standing on it draws in front.
+          @Override
+          public float getZIndex() {
+            return -(entity.getPosition().y + entity.getScale().y);
+          }
+        };
+    Entity rock = new Entity().addComponent(rockRender);
+    rockRender.scaleEntity();
+    rock.scaleWidth(CAVE_ROCK_WIDTH);
+    rock.setPosition(middle.x - CAVE_ROCK_WIDTH / 2f, middle.y + 2f * STATUE_DEPTH_OFFSET);
+    spawnEntity(rock);
+
+    AnimationRenderComponent cyclopsAnimator =
+        new AnimationRenderComponent(
+            ServiceLocator.getResourceService().getAsset(CYCLOPS_ATLAS, TextureAtlas.class));
+    cyclopsAnimator.addAnimation("sleep", 0.1f, Animation.PlayMode.LOOP, CYCLOPS_BODY_COLUMN, 0f);
+    cyclopsAnimator.addAnimation("idle", 0.083f, Animation.PlayMode.LOOP, CYCLOPS_BODY_COLUMN, 0f);
+    cyclopsAnimator.addAnimation(
+        "charge_start", 0.073f, Animation.PlayMode.NORMAL, CYCLOPS_BODY_COLUMN, 0f);
+    cyclopsAnimator.addAnimation("jump", 0.1f, Animation.PlayMode.LOOP, CYCLOPS_BODY_COLUMN, 0f);
+    cyclopsAnimator.addAnimation(
+        "attack",
+        CyclopsAnimationController.ATTACK_FRAME_TIME,
+        Animation.PlayMode.NORMAL,
+        CYCLOPS_BODY_COLUMN,
+        0f);
+    Entity cyclops =
+        new Entity()
+            .addComponent(cyclopsAnimator)
+            .addComponent(
+                new CyclopsAnimationController(player, middle.y + STATUE_DEPTH_OFFSET / 2f))
+            .addComponent(new CyclopsSoundComponent());
+    cyclopsAnimator.scaleEntity();
+    cyclops.scaleWidth(CYCLOPS_FRAME_WIDTH);
+    Texture rockImage =
+        ServiceLocator.getResourceService().getAsset(CAVE_ROCK_PLATFORM, Texture.class);
+    float rockPixelSize = CAVE_ROCK_WIDTH / rockImage.getWidth();
+    float rockTop = rock.getPosition().y + rock.getScale().y;
+    cyclops.setPosition(
+        middle.x - CYCLOPS_FRAME_WIDTH / 2f,
+        rockTop - SLEEPING_CYCLOPS_SINK_PIXELS * rockPixelSize);
+    spawnEntity(cyclops);
+    return cyclops;
   }
 
   /**
