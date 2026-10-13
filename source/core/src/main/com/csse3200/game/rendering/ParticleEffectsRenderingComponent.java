@@ -71,7 +71,9 @@ public class ParticleEffectsRenderingComponent extends RenderComponent {
       return;
     }
 
-    Vector2 centre = entity.getCenterPosition();
+    //    Vector2 centre = entity.getPosition();
+    float x = entity.getCenterPosition().x;
+    float y = entity.getPosition().y;
     Vector2 scale = entity.getScale();
     float baseSize = Math.max(scale.x / 4, scale.y / 4);
     float seconds = time.getTime() / 1000f;
@@ -85,13 +87,13 @@ public class ParticleEffectsRenderingComponent extends RenderComponent {
     shapeRenderer.begin(ShapeType.Filled);
 
     if (burning) {
-      drawEffect(centre, baseSize, seconds, fireBaseColour, fireMidColour, fireTipColour);
+      drawEffect(x, y, baseSize, seconds, fireBaseColour, fireMidColour, fireTipColour);
     }
     if (slowed) {
-      drawEffect(centre, baseSize, seconds, iceBaseColour, iceMidColour, iceTipColour);
+      drawEffect(x, y, baseSize, seconds, iceBaseColour, iceMidColour, iceTipColour);
     }
     if (poisoned) {
-      drawEffect(centre, baseSize, seconds, poisonBaseColour, poisonMidColour, poisonTipColour);
+      drawEffect(x, y, baseSize, seconds, poisonBaseColour, poisonMidColour, poisonTipColour);
     }
 
     shapeRenderer.end();
@@ -103,7 +105,7 @@ public class ParticleEffectsRenderingComponent extends RenderComponent {
    * built from small stacked quads colour-graded from base -> mid -> tip.
    */
   private void drawEffect(
-      Vector2 centre, float baseSize, float seconds, Color base, Color mid, Color tip) {
+      float x, float y, float baseSize, float seconds, Color base, Color mid, Color tip) {
     if (pointLightComponent != null) {
       pointLightComponent.setColor(base);
     }
@@ -115,14 +117,12 @@ public class ParticleEffectsRenderingComponent extends RenderComponent {
       height *= flicker;
 
       float pixel = Math.max(0.15f, baseSize * 0.05f);
-      float startX = centre.x;
-      float startY = centre.y - (centre.y / 2);
 
       for (int s = 0; s < segmentsPerPixel; s++) {
         float t = s / (float) (segmentsPerPixel - 1);
-        float segY = startY + height * t;
+        float segY = y + height * t;
         float segSway = sway * t + MathUtils.sin(seconds * 3f + s + i) * pixel;
-        float segX = startX + segSway;
+        float segX = x + segSway;
         float segWidth = pixel * (1.6f - 1.1f * t);
 
         colourGradient(base, mid, tip, t, workingColour);
