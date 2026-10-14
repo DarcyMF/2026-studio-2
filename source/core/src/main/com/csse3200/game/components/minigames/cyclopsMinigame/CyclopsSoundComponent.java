@@ -20,16 +20,14 @@ public class CyclopsSoundComponent extends Component {
 
   private Sound snore;
   private Sound roar;
-  private Sound landing;
-  private Sound clubHit;
 
   @Override
   public void create() {
     ResourceService resources = ServiceLocator.getResourceService();
     snore = resources.getAsset(SNORE_PATH, Sound.class);
     roar = resources.getAsset(ROAR_PATH, Sound.class);
-    landing = resources.getAsset(LANDING_PATH, Sound.class);
-    clubHit = resources.getAsset(CLUB_HIT_PATH, Sound.class);
+    Sound landing = resources.getAsset(LANDING_PATH, Sound.class);
+    Sound clubHit = resources.getAsset(CLUB_HIT_PATH, Sound.class);
 
     entity.getEvents().addListener(CyclopsAnimationController.WOKE_UP_EVENT, this::wakeUp);
     entity

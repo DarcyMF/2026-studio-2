@@ -65,11 +65,7 @@ public class CyclopsAnimationController extends Component {
   public void update() {
     float delta = ServiceLocator.getTimeSource().getDeltaTime();
     switch (state) {
-      case CHARGING -> {
-        if (animator.isFinished()) {
-          jumpTo(attackPosition(), State.JUMPING);
-        }
-      }
+      case CHARGING -> windUp();
       case JUMPING, RETURNING -> jump(delta);
       case ATTACKING -> swing(delta);
       default -> {}
@@ -78,6 +74,12 @@ public class CyclopsAnimationController extends Component {
 
   State getState() {
     return state;
+  }
+
+  private void windUp() {
+    if (animator.isFinished()) {
+      jumpTo(attackPosition(), State.JUMPING);
+    }
   }
 
   private void chargeAtTarget() {

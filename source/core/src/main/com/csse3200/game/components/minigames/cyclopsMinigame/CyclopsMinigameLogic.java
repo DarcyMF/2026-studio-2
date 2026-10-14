@@ -279,6 +279,12 @@ public class CyclopsMinigameLogic extends Component {
     changeState(playerIsDead() ? State.DEATH : State.LOSS);
   }
 
+  private void waitForCyclopsHit() {
+    if (elapsed(CAUGHT_TIMEOUT)) {
+      takeCyclopsHit();
+    }
+  }
+
   private boolean playerIsDead() {
     CombatStatsComponent combatStats = playerEntity.getComponent(CombatStatsComponent.class);
     return combatStats != null && combatStats.isDead();
@@ -395,11 +401,7 @@ public class CyclopsMinigameLogic extends Component {
         changeState(State.STOP);
         Gdx.app.postRunnable(() -> ServiceLocator.getCyclopsMinigameEventHandler().trigger("win"));
       }
-      case CAUGHT -> {
-        if (elapsed(CAUGHT_TIMEOUT)) {
-          takeCyclopsHit();
-        }
-      }
+      case CAUGHT -> waitForCyclopsHit();
       case LOSS -> {
         if (elapsed(HURT_PAUSE_DELAY)) {
           beginRetreat();
