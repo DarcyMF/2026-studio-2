@@ -18,6 +18,7 @@ import com.csse3200.game.components.item.consumables.HealthPotion;
 import com.csse3200.game.components.item.consumables.PoisonPotion;
 import com.csse3200.game.components.item.consumables.SpeedPotion;
 import com.csse3200.game.components.item.weapons.bow.arrow.Arrow;
+import com.csse3200.game.components.lighting.PointLightComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.extensions.GameExtension;
 import com.csse3200.game.lighting.LightingEngine;
@@ -97,6 +98,13 @@ class ItemFactoryTest {
     Entity entity = ItemFactory.createWheelToken();
 
     assertNotNull(entity.getComponent(WheelTokenPickupComponent.class));
+  }
+
+  @Test
+  void shouldCreateWheelTokenWithGlow() {
+    Entity entity = ItemFactory.createWheelToken();
+
+    assertNotNull(entity.getComponent(PointLightComponent.class));
   }
 
   private static void assertItemMapping(ItemType type, Class<? extends Item> expectedClass) {

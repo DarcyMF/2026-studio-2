@@ -29,6 +29,7 @@ public class CyclopsMinigameLogic extends Component {
     HIDE_DELAY,
     PRE_MOVE,
     MOVING,
+    CAUGHT,
     LOSS,
     RETREAT,
     DEATH,
@@ -47,6 +48,8 @@ public class CyclopsMinigameLogic extends Component {
   static final int MISS_DAMAGE = 2;
   public static final String CYCLOPS_WAKE_EVENT = "cyclopsWake";
   public static final String CYCLOPS_SLEEP_EVENT = "cyclopsSleep";
+  public static final String CYCLOPS_HIT_EVENT = "cyclopsHit";
+  static final float CAUGHT_TIMEOUT = 5f;
   static final float START_SCORING_PERCENT = 20f;
   static final float END_SCORING_PERCENT = 10f;
 
@@ -257,15 +260,28 @@ public class CyclopsMinigameLogic extends Component {
       if (hasWon) changeState(State.WIN);
       else startMinigame();
     } else {
-      CombatStatsComponent combatStats = playerEntity.getComponent(CombatStatsComponent.class);
-      if (combatStats != null) {
-        combatStats.addHealth(-MISS_DAMAGE);
-      }
-      playerEntity.getEvents().trigger(playerLossAnimation);
       ServiceLocator.getCyclopsMinigameEventHandler().trigger(CYCLOPS_WAKE_EVENT);
-      // A miss costs a heart and retries the current statue; losing all hearts restarts the
-      // minigame.
-      changeState(playerIsDead() ? State.DEATH : State.LOSS);
+      changeState(State.CAUGHT);
+    }
+  }
+
+  void takeCyclopsHit() {
+    if (state != State.CAUGHT) {
+      return;
+    }
+    CombatStatsComponent combatStats = playerEntity.getComponent(CombatStatsComponent.class);
+    if (combatStats != null) {
+      combatStats.addHealth(-MISS_DAMAGE);
+    }
+    playerEntity.getEvents().trigger(playerLossAnimation);
+    // A miss costs a heart and retries the current statue; losing all hearts restarts the
+    // minigame.
+    changeState(playerIsDead() ? State.DEATH : State.LOSS);
+  }
+
+  private void waitForCyclopsHit() {
+    if (elapsed(CAUGHT_TIMEOUT)) {
+      takeCyclopsHit();
     }
   }
 
@@ -361,6 +377,8 @@ public class CyclopsMinigameLogic extends Component {
     ServiceLocator.getCyclopsMinigameEventHandler().addListener("restart", this::restartMinigame);
     ServiceLocator.getCyclopsMinigameEventHandler().addListener("success", this::timingSuccess);
     ServiceLocator.getCyclopsMinigameEventHandler().addListener("failure", this::timingFailure);
+    ServiceLocator.getCyclopsMinigameEventHandler()
+        .addListener(CYCLOPS_HIT_EVENT, this::takeCyclopsHit);
 
     this.transitionScreenCover = new BlankTransitionScreenCover();
     ServiceLocator.getEntityService()
@@ -383,6 +401,7 @@ public class CyclopsMinigameLogic extends Component {
         changeState(State.STOP);
         Gdx.app.postRunnable(() -> ServiceLocator.getCyclopsMinigameEventHandler().trigger("win"));
       }
+      case CAUGHT -> waitForCyclopsHit();
       case LOSS -> {
         if (elapsed(HURT_PAUSE_DELAY)) {
           beginRetreat();
