@@ -5,8 +5,16 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.Timer;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ButtonSound {
+  private ButtonSound() {
+    // Utility class; all operations are static.
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(ButtonSound.class);
+
   private static final String CLICK_SOUND = "sounds/Button_Sound_02.wav";
   private static final float TRANSITION_DELAY = 0.35f;
 
@@ -46,9 +54,9 @@ public class ButtonSound {
     try {
       Sound sound = ServiceLocator.getResourceService().getAsset(path, Sound.class);
       sound.play(GameVolume.scale(1.0f));
-      System.out.println("ButtonSound played: " + path);
+      logger.debug("ButtonSound played: {}", path);
     } catch (GdxRuntimeException e) {
-      System.out.println("ButtonSound FAILED: " + path + " - " + e.getMessage());
+      logger.warn("ButtonSound failed: {}", path, e);
     }
   }
 }

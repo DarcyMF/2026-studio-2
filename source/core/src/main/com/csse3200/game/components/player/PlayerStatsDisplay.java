@@ -1,6 +1,5 @@
 package com.csse3200.game.components.player;
 
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Group;
@@ -54,10 +53,6 @@ public class PlayerStatsDisplay extends UIComponent {
   private Label speedLabel;
   private Image background;
   private boolean showStatText;
-  private Table goldTable;
-  private Label goldLabel;
-
-  private Color goldColor = new Color(0.0f, 0.47f, 0.47f, 1.0f);
 
   /**
    * Sets whether to show the health and speed text labels above the health bar.
@@ -114,11 +109,10 @@ public class PlayerStatsDisplay extends UIComponent {
       root.add(speedLabel).left();
     }
 
-    goldTable = new Table();
+    Table goldTable = new Table();
     InventoryComponent inventory = entity.getComponent(InventoryComponent.class);
     if (inventory != null) {
-      goldLabel = new Label("" + inventory.getGold(), skin);
-      // goldLabel.getStyle().fontColor = goldColor;
+      Label goldLabel = new Label("" + inventory.getGold(), skin);
       goldLabel.setFontScale(GOLD_FONT_SCALE);
       goldTable.add(goldLabel).left().padLeft(20f);
 

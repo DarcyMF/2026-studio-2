@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.components.CameraComponent;
 import com.csse3200.game.components.GameVolume;
-import com.csse3200.game.components.TextBoxComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsAnimationController;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsCameraFollowComponent;
 import com.csse3200.game.components.minigames.cyclopsMinigame.CyclopsFloorRenderComponent;
@@ -34,6 +33,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CyclopsMinigameArea extends GameArea {
+  private static final String CAVE_BACKGROUND_MUSIC =
+      "sounds/minigames/cyclops/cave_background_noise.mp3";
+
+  private static final String HURT_PLAYER_ONE_SOUND = "sounds/hurt_player_1.wav";
+
+  private static final String HURT_PLAYER_TWO_SOUND = "sounds/hurt_player_2.wav";
+
+  private static final String HURT_PLAYER_FOUR_SOUND = "sounds/hurt_player_4.wav";
+
   private static final Logger logger = LoggerFactory.getLogger(CyclopsMinigameArea.class);
 
   static final float PLAYER_SCALE = 1.5f;
@@ -86,17 +94,15 @@ public class CyclopsMinigameArea extends GameArea {
     "images/player/player.atlas", CYCLOPS_ATLAS
   };
 
-  private static final String[] cyclopsMinigameMusic = {
-    "sounds/minigames/cyclops/cave_background_noise.mp3"
-  };
+  private static final String[] cyclopsMinigameMusic = {CAVE_BACKGROUND_MUSIC};
 
   // Indexed by hearts remaining after a hit. 0 hearts is the fatal hit, which uses placeholder 4.
   public static final String[] HURT_VOICE_PATH_BY_HEARTS = {
-    "sounds/hurt_player_4.wav",
-    "sounds/hurt_player_2.wav",
-    "sounds/hurt_player_2.wav",
-    "sounds/hurt_player_1.wav",
-    "sounds/hurt_player_1.wav"
+    HURT_PLAYER_FOUR_SOUND,
+    HURT_PLAYER_TWO_SOUND,
+    HURT_PLAYER_TWO_SOUND,
+    HURT_PLAYER_ONE_SOUND,
+    HURT_PLAYER_ONE_SOUND
   };
   public static final float[] HURT_VOLUME_BY_HEARTS = {0.6f, 0.3f, 0.3f, 0.3f, 0.3f};
 
@@ -104,10 +110,10 @@ public class CyclopsMinigameArea extends GameArea {
     "sounds/walkingSounds/walkingSound.mp3",
     "sounds/minigames/cyclops/marker-hit.ogg",
     "sounds/minigames/cyclops/marker-miss.ogg",
-    "sounds/hurt_player_1.wav",
-    "sounds/hurt_player_2.wav",
+    HURT_PLAYER_ONE_SOUND,
+    HURT_PLAYER_TWO_SOUND,
     "sounds/hurt_player_3.wav",
-    "sounds/hurt_player_4.wav",
+    HURT_PLAYER_FOUR_SOUND,
     CyclopsSoundComponent.SNORE_PATH,
     CyclopsSoundComponent.ROAR_PATH,
     CyclopsSoundComponent.LANDING_PATH,
@@ -117,7 +123,6 @@ public class CyclopsMinigameArea extends GameArea {
   private final TerrainFactory terrainFactory;
 
   private Entity player;
-  private Entity minigame;
   private Vector2 playerOffset = new Vector2();
   private float formationHeight;
 
@@ -130,7 +135,6 @@ public class CyclopsMinigameArea extends GameArea {
   private ArrayList<GridPoint2> statueGapLocations;
 
   private CutsceneInputComponent input;
-  private TextBoxComponent textBox;
 
   public CyclopsMinigameArea(CameraComponent camera, TerrainFactory terrainFactory) {
     super(camera);
@@ -173,7 +177,7 @@ public class CyclopsMinigameArea extends GameArea {
     cyclopsMinigameLogic.setLossLocations(statueGapLocations);
     cyclopsMinigameLogic.setPlayerOffset(playerOffset);
 
-    minigame = new Entity();
+    Entity minigame = new Entity();
     minigame.addComponent(timingBarDisplay);
     minigame.addComponent(cyclopsMinigameLogic);
     spawnEntity(minigame);
@@ -405,7 +409,7 @@ public class CyclopsMinigameArea extends GameArea {
   private Entity spawnPlayer() {
     Entity newPlayer = PlayerFactory.createPlayerDisplay();
     Sound deathVoice =
-        ServiceLocator.getResourceService().getAsset("sounds/hurt_player_4.wav", Sound.class);
+        ServiceLocator.getResourceService().getAsset(HURT_PLAYER_FOUR_SOUND, Sound.class);
     newPlayer.addComponent(
         new CyclopsHurtSoundComponent(loadHurtVoices(), HURT_VOLUME_BY_HEARTS, deathVoice));
     Vector2 baseScale = newPlayer.getScale().cpy();
@@ -428,9 +432,7 @@ public class CyclopsMinigameArea extends GameArea {
   }
 
   private void playMusic() {
-    Music music =
-        ServiceLocator.getResourceService()
-            .getAsset("sounds/minigames/cyclops/cave_background_noise.mp3", Music.class);
+    Music music = ServiceLocator.getResourceService().getAsset(CAVE_BACKGROUND_MUSIC, Music.class);
     music.setLooping(true);
     GameVolume.setMusicVolume(music, 0.4f);
     music.play();
@@ -461,9 +463,7 @@ public class CyclopsMinigameArea extends GameArea {
   @Override
   public void dispose() {
     super.dispose();
-    ServiceLocator.getResourceService()
-        .getAsset("sounds/minigames/cyclops/cave_background_noise.mp3", Music.class)
-        .stop();
+    ServiceLocator.getResourceService().getAsset(CAVE_BACKGROUND_MUSIC, Music.class).stop();
     this.unloadAssets();
   }
 }

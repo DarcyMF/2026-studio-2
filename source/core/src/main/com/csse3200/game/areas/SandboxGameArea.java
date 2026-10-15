@@ -38,7 +38,6 @@ public class SandboxGameArea extends GameArea {
   private static final int GROUND_START_X = 0;
   private static final int GROUND_Y = 0;
   private static final int GROUND_LENGTH = 50;
-  private static final int GROUND_PLATFORM_WIDTH = 2;
   private static final float GROUND_HEIGHT = 1f;
   private static final float GRAPPLE_PLATFORM_WIDTH = 3f;
   private static final float GRAPPLE_PLATFORM_HEIGHT = 1f;
@@ -57,7 +56,6 @@ public class SandboxGameArea extends GameArea {
   private static final GridPoint2 SPAWNED_MONSTER_POSITION = new GridPoint2(-8, 2);
   private static final float MONSTER_SPAWNER_NPC_WIDTH = 1.16f;
   private static final float MONSTER_SPAWNER_NPC_HEIGHT = 1.5f;
-  private static final float SANDBOX_ACTIVE_CHASE_DISTANCE = 20f;
   private static final String TRANSPARENT_TEXTURE = "images/ui/transparent.png";
   private static final String FLOOR_TEXTURE = "images/terrain/Others/platform.png";
   private static final String HOOK_PLATFORM_TEXTURE = "images/terrain/Others/platform.png";
@@ -112,6 +110,7 @@ public class SandboxGameArea extends GameArea {
   /**
    * @return the controllable player after this area has been created
    */
+  @Override
   public Entity getPlayer() {
     return player;
   }

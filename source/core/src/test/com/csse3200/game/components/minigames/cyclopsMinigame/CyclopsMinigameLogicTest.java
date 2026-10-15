@@ -28,7 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 
 @ExtendWith(GameExtension.class)
-public class CyclopsMinigameLogicTest {
+class CyclopsMinigameLogicTest {
   CyclopsMinigameLogic minigameLogic;
   TimingBarLogic timingBarLogic;
   TimingBarDisplay timingBarDisplay;
@@ -172,7 +172,7 @@ public class CyclopsMinigameLogicTest {
   }
 
   @Test
-  public void restartMinigameMovesPlayerBackToFirstLocation() {
+  void restartMinigameMovesPlayerBackToFirstLocation() {
     GridPoint2 start = new GridPoint2(1, 0);
     GridPoint2 next = new GridPoint2(2, 0);
 

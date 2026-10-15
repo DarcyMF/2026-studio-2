@@ -19,8 +19,8 @@ import com.csse3200.game.services.ServiceLocator;
  */
 public class ParticleEffectsRenderingComponent extends RenderComponent {
 
-  private static final int pixelCount = 5;
-  private static final int segmentsPerPixel = 6;
+  private static final int PIXEL_COUNT = 5;
+  private static final int SEGMENTS_PER_PIXEL = 6;
 
   private static final Color fireBaseColour = new Color(0.55f, 0.05f, 0.02f, 1f);
   private static final Color fireMidColour = new Color(0.95f, 0.35f, 0.05f, 1f);
@@ -107,10 +107,10 @@ public class ParticleEffectsRenderingComponent extends RenderComponent {
     if (pointLightComponent != null) {
       pointLightComponent.setColor(base);
     }
-    for (int i = 0; i < pixelCount; i++) {
-      float hash = MathUtils.random((float) 11.0 + i * 17.3f);
+    for (int i = 0; i < PIXEL_COUNT; i++) {
+      float hash = MathUtils.random(11.0f + i * 17.3f);
       float sway = MathUtils.sin(seconds * (1.6f + hash) + i) * baseSize * 0.08f;
-      float height = baseSize * (0.55f + 0.4f * MathUtils.random((float) 11.0 + i));
+      float height = baseSize * (0.55f + 0.4f * MathUtils.random(11.0f + i));
       float flicker = 0.85f + 0.15f * MathUtils.sin(seconds * (4f + hash * 3f) + i * 2f);
       height *= flicker;
 
@@ -118,8 +118,8 @@ public class ParticleEffectsRenderingComponent extends RenderComponent {
       float startX = centre.x;
       float startY = centre.y - (centre.y / 2);
 
-      for (int s = 0; s < segmentsPerPixel; s++) {
-        float t = s / (float) (segmentsPerPixel - 1);
+      for (int s = 0; s < SEGMENTS_PER_PIXEL; s++) {
+        float t = s / (float) (SEGMENTS_PER_PIXEL - 1);
         float segY = startY + height * t;
         float segSway = sway * t + MathUtils.sin(seconds * 3f + s + i) * pixel;
         float segX = startX + segSway;

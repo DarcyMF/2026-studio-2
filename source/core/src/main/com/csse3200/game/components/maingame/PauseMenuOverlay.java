@@ -7,12 +7,16 @@ import com.csse3200.game.entities.Entity;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.BlurredBackdropDisplay;
 import com.csse3200.game.ui.ScreenBlur;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Shows the spin the wheel minigame over the game, pausing it and blurring the frame the wheel
  * opened on. Owned by the screen showing the game, not by an entity.
  */
 public class PauseMenuOverlay {
+  private static final Logger logger = LoggerFactory.getLogger(PauseMenuOverlay.class);
+
   private boolean open = false;
   private boolean openRequested = false;
   private Entity overlay;
@@ -79,6 +83,7 @@ public class PauseMenuOverlay {
           ServiceLocator.getResourceService().getAsset("sounds/gameplay_bg.ogg", Music.class);
       gameplay.play();
     } catch (Exception ignored) {
+      logger.warn("Could not switch pause menu music", ignored);
     }
   }
 }

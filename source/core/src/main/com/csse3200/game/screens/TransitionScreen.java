@@ -93,10 +93,10 @@ public class TransitionScreen implements Screen {
     int width = Gdx.graphics.getWidth();
     int height = Gdx.graphics.getHeight();
 
-    batch.getProjectionMatrix().setToOrtho2D(0, 0, width, height);
+    batch.getProjectionMatrix().setToOrtho2D(0, 0, (float) width, (float) height);
     batch.begin();
     batch.setColor(0f, 0f, 0f, alpha);
-    batch.draw(blackPixel, 0, 0, width, height);
+    batch.draw(blackPixel, 0, 0, (float) width, (float) height);
     batch.setColor(Color.WHITE);
     batch.end();
   }
@@ -112,16 +112,24 @@ public class TransitionScreen implements Screen {
   }
 
   @Override
-  public void show() {}
+  public void show() {
+    // The constructor has already prepared the transition resources.
+  }
 
   @Override
-  public void pause() {}
+  public void pause() {
+    // The transition has no separate pause or resume state.
+  }
 
   @Override
-  public void resume() {}
+  public void resume() {
+    // The transition has no separate pause or resume state.
+  }
 
   @Override
-  public void hide() {}
+  public void hide() {
+    // Transition resources are released by dispose().
+  }
 
   @Override
   public void dispose() {

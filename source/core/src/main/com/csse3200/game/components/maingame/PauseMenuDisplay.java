@@ -17,6 +17,8 @@ import com.csse3200.game.components.settingsmenu.SettingsMenuDisplayInGame;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.UIComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Displays a pause menu on the main game screen. Must be opened via the "showPauseMenu" event (in
@@ -25,17 +27,15 @@ import com.csse3200.game.ui.UIComponent;
  * cannot move.
  */
 public class PauseMenuDisplay extends UIComponent {
+  private static final Logger logger = LoggerFactory.getLogger(PauseMenuDisplay.class);
+
   Table table;
   Table controlsGraphicTable;
 
   private GdxGame game;
-  private GameArea area;
-
-  private Entity overlay;
 
   public PauseMenuDisplay(GdxGame game, GameArea area) {
     this.game = game;
-    this.area = area;
   }
 
   @Override
@@ -55,6 +55,7 @@ public class PauseMenuDisplay extends UIComponent {
       GameVolume.setMusicVolume(mainMenu, 0.1f);
       mainMenu.play();
     } catch (Exception e) {
+      logger.warn("Could not switch pause menu music", e);
     }
     table = new Table();
     table.setFillParent(true);
@@ -133,7 +134,6 @@ public class PauseMenuDisplay extends UIComponent {
             if (ServiceLocator.getEntityService().getPaused()) {
               ButtonSound.playClick();
               entity.getEvents().trigger("togglePause");
-              // area.getInput().unpause();
             }
           }
         });

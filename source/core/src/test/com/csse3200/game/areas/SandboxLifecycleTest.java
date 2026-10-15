@@ -47,7 +47,8 @@ class SandboxLifecycleTest extends UiTestSupport {
     realResources = new ResourceService();
     ServiceLocator.registerResourceService(realResources);
     LightingEngine lightingEngine = mock(LightingEngine.class);
-    when(lightingEngine.getRayHandler()).thenReturn(mock(box2dLight.RayHandler.class));
+    box2dLight.RayHandler rayHandlerMock = mock(box2dLight.RayHandler.class);
+    when(lightingEngine.getRayHandler()).thenReturn(rayHandlerMock);
     LightingService lightingService = mock(LightingService.class);
     when(lightingService.getEngine()).thenReturn(lightingEngine);
     ServiceLocator.registerLightingService(lightingService);
@@ -60,7 +61,7 @@ class SandboxLifecycleTest extends UiTestSupport {
         .thenAnswer(
             call -> {
               GridPoint2 tile = call.getArgument(0);
-              return new Vector2(tile.x, tile.y);
+              return new Vector2((float) tile.x, (float) tile.y);
             });
     area = new SandboxGameArea(factory, new CameraComponent());
     pointLights = mockConstruction(PointLightComponent.class);

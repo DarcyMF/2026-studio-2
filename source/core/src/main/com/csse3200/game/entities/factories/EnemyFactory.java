@@ -16,7 +16,6 @@ import com.csse3200.game.components.SlowStatsComponent;
 import com.csse3200.game.components.TouchAttackComponent;
 import com.csse3200.game.components.lighting.PointLightComponent;
 import com.csse3200.game.components.npc.ChaseSoundComponent;
-// import com.csse3200.game.components.npc.SkeletonAnimationController;
 import com.csse3200.game.components.npc.EnemyAnimationController;
 import com.csse3200.game.components.tasks.ChaseTask;
 import com.csse3200.game.components.tasks.DelayedAttackTask;
@@ -107,7 +106,7 @@ public class EnemyFactory {
    */
   public static Entity createSkeletonArcher(Entity target) {
     EnemyConfig config = configs.skeletonArcher;
-    Entity SkeletonArcher = createEnemy(target, config);
+    Entity skeletonArcher = createEnemy(target, config);
 
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
@@ -116,15 +115,15 @@ public class EnemyFactory {
     animator.addAnimation("walk", 0.15f, Animation.PlayMode.LOOP);
     animator.addAnimation("idle", 0.15f, Animation.PlayMode.LOOP);
 
-    SkeletonArcher
+    skeletonArcher
         // .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(animator)
         .addComponent(new EnemyAnimationController(target))
         .addComponent(new ChaseSoundComponent("sounds/evil cyber laugh.wav", 0.15f));
 
-    SkeletonArcher.getComponent(AnimationRenderComponent.class).scaleEntity();
+    skeletonArcher.getComponent(AnimationRenderComponent.class).scaleEntity();
 
-    return SkeletonArcher;
+    return skeletonArcher;
   }
 
   /**
@@ -163,7 +162,7 @@ public class EnemyFactory {
    */
   public static Entity createVulture(Entity target) {
     EnemyConfig config = configs.vulture;
-    Entity Vulture = createEnemy(target, config);
+    Entity vulture = createEnemy(target, config);
 
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
@@ -172,16 +171,15 @@ public class EnemyFactory {
     animator.addAnimation("walk", 0.15f, Animation.PlayMode.LOOP);
     animator.addAnimation("idle", 0.15f, Animation.PlayMode.LOOP);
 
-    Vulture
+    vulture
         // .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(animator)
         .addComponent(new EnemyAnimationController(target))
         .addComponent(new ChaseSoundComponent("sounds/osprey.ogg", 0.15f));
 
-    Vulture.getComponent(AnimationRenderComponent.class).scaleEntity();
-    // Vulture.getComponent(ColliderComponent.class).setSensor(true);
+    vulture.getComponent(AnimationRenderComponent.class).scaleEntity();
 
-    return Vulture;
+    return vulture;
   }
 
   /**
@@ -192,7 +190,7 @@ public class EnemyFactory {
    */
   public static Entity createNecromancer(Entity target) {
     EnemyConfig config = configs.necromancer;
-    Entity Necromancer = createEnemy(target, config);
+    Entity necromancer = createEnemy(target, config);
 
     AnimationRenderComponent animator =
         new AnimationRenderComponent(
@@ -201,14 +199,14 @@ public class EnemyFactory {
     animator.addAnimation("walk", 0.15f, Animation.PlayMode.LOOP);
     animator.addAnimation("idle", 0.15f, Animation.PlayMode.LOOP);
 
-    Necromancer
+    necromancer
         // .addComponent(new CombatStatsComponent(config.health, config.baseAttack))
         .addComponent(animator)
         .addComponent(new EnemyAnimationController(target));
 
-    Necromancer.getComponent(AnimationRenderComponent.class).scaleEntity();
+    necromancer.getComponent(AnimationRenderComponent.class).scaleEntity();
 
-    return Necromancer;
+    return necromancer;
   }
 
   /**

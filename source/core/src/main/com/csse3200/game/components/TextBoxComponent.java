@@ -276,7 +276,7 @@ public class TextBoxComponent extends UIComponent {
 
   /** Sets the opacity of the textbox while it remains mounted. */
   public void setOpacity(float opacity) {
-    float clampedOpacity = Math.max(0f, Math.min(1f, opacity));
+    float clampedOpacity = Math.clamp(opacity, 0f, 1f);
     if (table != null) {
       table.getColor().a = clampedOpacity;
     }
@@ -392,7 +392,7 @@ public class TextBoxComponent extends UIComponent {
     label.setAlignment(this.textAlignment);
     applyTextColor();
 
-    table.add(label).width(this.maxWidth).pad(this.padding);
+    table.add(label).width((float) this.maxWidth).pad((float) this.padding);
 
     stage.addActor(table);
   }
@@ -462,8 +462,8 @@ public class TextBoxComponent extends UIComponent {
     float y = this.posY;
     if (entity != null) {
       Vector2 worldPos = entity.getCenterPosition();
-      float screenWidth = Gdx.graphics.getWidth();
-      float screenHeight = Gdx.graphics.getHeight();
+      float screenWidth = (float) Gdx.graphics.getWidth();
+      float screenHeight = (float) Gdx.graphics.getHeight();
       x = (worldPos.x / 20f) * screenWidth + 10f;
       y = (worldPos.y / 20f) * screenHeight + 18f;
     }

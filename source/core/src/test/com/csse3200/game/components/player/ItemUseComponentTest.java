@@ -41,7 +41,8 @@ class ItemUseComponentTest {
     ServiceLocator.registerTimeSource(time);
 
     LightingEngine lightingEngine = mock(LightingEngine.class);
-    when(lightingEngine.getRayHandler()).thenReturn(mock(box2dLight.RayHandler.class));
+    box2dLight.RayHandler rayHandlerMock = mock(box2dLight.RayHandler.class);
+    when(lightingEngine.getRayHandler()).thenReturn(rayHandlerMock);
     LightingService lightingService = mock(LightingService.class);
     when(lightingService.getEngine()).thenReturn(lightingEngine);
     ServiceLocator.registerLightingService(lightingService);
@@ -54,7 +55,7 @@ class ItemUseComponentTest {
     inventory.addItem(ItemType.STANDARD_ARROW, 3);
 
     AtomicReference<ArrowType> bowType = new AtomicReference<>();
-    player.getEvents().addListener("setArrowType", bowType::set);
+    player.getEvents().<ArrowType>addListener("setArrowType", bowType::set);
     player
         .getEvents()
         .addListener(
@@ -126,7 +127,7 @@ class ItemUseComponentTest {
     inventory.addItem(ItemType.HEALTH_POTION, 1);
 
     AtomicReference<ItemType> failed = new AtomicReference<>();
-    player.getEvents().addListener("itemUseFailed", failed::set);
+    player.getEvents().<ItemType>addListener("itemUseFailed", failed::set);
 
     assertTrue(combat.isHealthFull());
     assertFalse(player.getComponent(ItemUseComponent.class).useSelectedItem());
@@ -210,7 +211,7 @@ class ItemUseComponentTest {
     AtomicReference<ItemType> failed = new AtomicReference<>();
     AtomicInteger drawStarts = new AtomicInteger();
     AtomicInteger used = new AtomicInteger();
-    player.getEvents().addListener("itemUseFailed", (ItemType type) -> failed.set(type));
+    player.getEvents().<ItemType>addListener("itemUseFailed", failed::set);
     player
         .getEvents()
         .addListener("grappleDrawStart", (Vector2 ignored) -> drawStarts.incrementAndGet());
@@ -234,7 +235,7 @@ class ItemUseComponentTest {
     player
         .getEvents()
         .addListener("setArrowType", (ArrowType ignored) -> bowTypeChanges.incrementAndGet());
-    player.getEvents().addListener("itemUsed", (ItemType type) -> used.set(type));
+    player.getEvents().<ItemType>addListener("itemUsed", used::set);
 
     player.getEvents().trigger("shoot", new Vector2(1f, 0f));
 
@@ -463,7 +464,7 @@ class ItemUseComponentTest {
 
     AtomicReference<ArrowType> bowType = new AtomicReference<>();
     AtomicInteger shots = new AtomicInteger();
-    player.getEvents().addListener("setArrowType", bowType::set);
+    player.getEvents().<ArrowType>addListener("setArrowType", bowType::set);
     player.getEvents().addListener("primaryAttack", (Vector2 ignored) -> shots.incrementAndGet());
 
     assertTrue(player.getComponent(ItemUseComponent.class).useSelectedItem());
@@ -480,7 +481,7 @@ class ItemUseComponentTest {
 
     AtomicReference<ArrowType> bowType = new AtomicReference<>();
     int[] releases = {0};
-    player.getEvents().addListener("setArrowType", (ArrowType t) -> bowType.set(t));
+    player.getEvents().<ArrowType>addListener("setArrowType", bowType::set);
     player.getEvents().addListener("chargeRelease", (Vector2 ignored) -> releases[0]++);
 
     player.getEvents().trigger("shoot", new Vector2(1f, 0f));
@@ -500,7 +501,7 @@ class ItemUseComponentTest {
 
     AtomicReference<ArrowType> bowType = new AtomicReference<>();
     int[] releases = {0};
-    player.getEvents().addListener("setArrowType", (ArrowType t) -> bowType.set(t));
+    player.getEvents().<ArrowType>addListener("setArrowType", bowType::set);
     player.getEvents().addListener("chargeRelease", (Vector2 ignored) -> releases[0]++);
 
     player.getEvents().trigger("shoot", new Vector2(1f, 0f));
