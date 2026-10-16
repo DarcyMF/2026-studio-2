@@ -106,7 +106,7 @@ public class MainGameScreen extends ScreenAdapter {
     wheelOverlay = new SpinTheWheelOverlay(WheelConfig.ITEMS, player, minigameOverlayManager);
     player.getEvents().addListener("spinTheWheel", wheelOverlay::request);
     blackjackOverlay = new BlackjackOverlay(player, minigameOverlayManager);
-    pauseOverlay = new PauseMenuOverlay(game, forestGameArea);
+    pauseOverlay = new PauseMenuOverlay(game);
   }
 
   private void onPlayerDeath() {

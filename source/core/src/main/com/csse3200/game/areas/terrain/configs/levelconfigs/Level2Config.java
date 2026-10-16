@@ -3,7 +3,6 @@ package com.csse3200.game.areas.terrain.configs.levelconfigs;
 import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.configs.*;
-// import com.csse3200.game.components.item.weapons.StandardArr;
 import com.csse3200.game.components.item.*;
 import com.csse3200.game.components.item.weapons.bow.arrow.*;
 import com.csse3200.game.components.level.SpawnerComponent;

@@ -54,8 +54,8 @@ public class SettingsMenuDisplay extends UIComponent {
   }
 
   private void addActors() {
-    float screenWidth = (float) Gdx.graphics.getWidth();
-    float screenHeight = (float) Gdx.graphics.getHeight();
+    float screenWidth = Gdx.graphics.getWidth();
+    float screenHeight = Gdx.graphics.getHeight();
 
     Image background =
         new Image(

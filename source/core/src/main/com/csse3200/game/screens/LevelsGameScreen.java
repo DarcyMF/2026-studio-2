@@ -200,7 +200,7 @@ public class LevelsGameScreen extends ScreenAdapter {
     wheelOverlay = new SpinTheWheelOverlay(WheelConfig.ITEMS, player);
     player.getEvents().addListener("wheelTokenPickedUp", wheelOverlay::request);
     player.getEvents().addListener("spinTheWheel", wheelOverlay::request);
-    pauseOverlay = new PauseMenuOverlay(game, level1GameArea);
+    pauseOverlay = new PauseMenuOverlay(game);
 
     minigameOverlayManager = new MinigameOverlayManager();
     blackjackOverlay = new BlackjackOverlay(player, minigameOverlayManager);

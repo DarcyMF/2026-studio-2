@@ -31,8 +31,8 @@ public class MainMenuDisplay extends UIComponent {
   private void addActors() {
     table = new Table();
     table.setFillParent(true);
-    float screenWidth = (float) Gdx.graphics.getWidth();
-    float screenHeight = (float) Gdx.graphics.getHeight();
+    float screenWidth = Gdx.graphics.getWidth();
+    float screenHeight = Gdx.graphics.getHeight();
     float pad = screenHeight * 0.02f;
     Image background =
         new Image(

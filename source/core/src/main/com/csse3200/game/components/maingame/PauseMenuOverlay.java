@@ -2,7 +2,6 @@ package com.csse3200.game.components.maingame;
 
 import com.badlogic.gdx.audio.Music;
 import com.csse3200.game.GdxGame;
-import com.csse3200.game.areas.GameArea;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.services.ServiceLocator;
 import com.csse3200.game.ui.BlurredBackdropDisplay;
@@ -21,11 +20,9 @@ public class PauseMenuOverlay {
   private boolean openRequested = false;
   private Entity overlay;
   private GdxGame game;
-  private GameArea area;
 
-  public PauseMenuOverlay(GdxGame game, GameArea area) {
+  public PauseMenuOverlay(GdxGame game) {
     this.game = game;
-    this.area = area;
   }
 
   /** Asks for the wheel to open. It appears at the end of the current frame. */
@@ -56,7 +53,7 @@ public class PauseMenuOverlay {
   private void open() {
     open = true;
     BlurredBackdropDisplay backdrop = new BlurredBackdropDisplay(ScreenBlur.capture());
-    PauseMenuDisplay display = new PauseMenuDisplay(game, area);
+    PauseMenuDisplay display = new PauseMenuDisplay(game);
 
     overlay =
         new Entity()

@@ -195,17 +195,6 @@ public class Level1GameArea extends GameArea {
     Entity exit = new Entity().addComponent(new CaveEntranceRenderComponent());
     exit.setScale(3f, 4f);
     spawnEntityAt(exit, new GridPoint2(87, 17), false, false);
-
-    // Test enemy functionalitys
-    // spawnTestCalypso();
-
-    // spawnTestWinCondition(); // Temporary test win condition near player spawn for quick testing
-
-    // spawnTestEnemyNearPlayer(); // Temporary enemy near player spawn for quick HUD/flicker
-    // testing
-    // testing
-    // spawnTestWinCondition(); // Temporary test win condition near player spawn for quick testing
-
   }
 
   @Override

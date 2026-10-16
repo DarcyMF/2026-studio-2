@@ -103,8 +103,7 @@ public class Level2GameArea extends GameArea {
     spawnConfigEntities();
     spawnSkeletonWarrior();
 
-    player.setPosition(
-        new Vector2((float) config.getPlayerSpawn().x, (float) config.getPlayerSpawn().y));
+    player.setPosition(new Vector2(config.getPlayerSpawn().x, config.getPlayerSpawn().y));
   }
 
   /** Creates the Level 2 parallax background. */

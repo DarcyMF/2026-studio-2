@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.csse3200.game.GdxGame;
-import com.csse3200.game.areas.GameArea;
 import com.csse3200.game.components.ButtonSound;
 import com.csse3200.game.components.GameVolume;
 import com.csse3200.game.components.settingsmenu.SettingsMenuDisplayInGame;
@@ -34,7 +33,7 @@ public class PauseMenuDisplay extends UIComponent {
 
   private GdxGame game;
 
-  public PauseMenuDisplay(GdxGame game, GameArea area) {
+  public PauseMenuDisplay(GdxGame game) {
     this.game = game;
   }
 
