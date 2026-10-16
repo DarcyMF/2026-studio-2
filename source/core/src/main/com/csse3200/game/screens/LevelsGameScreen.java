@@ -431,8 +431,8 @@ public class LevelsGameScreen extends ScreenAdapter {
     paths.add(ItemFactory.GOLD_TEXTURE);
     paths.add("images/projectiles/poison_arrow.png");
     paths.addAll(List.of(PauseButtonDisplay.extraTextures()));
-    paths.addAll(List.of(WheelConfig.TEXTURES));
-    paths.addAll(List.of(BlackjackConfig.TEXTURES));
+    paths.addAll(WheelConfig.TEXTURES);
+    paths.addAll(BlackjackConfig.TEXTURES);
     paths.addAll(List.of(ItemAssets.getTextures()));
     return paths.stream().distinct().toArray(String[]::new);
   }
@@ -452,7 +452,7 @@ public class LevelsGameScreen extends ScreenAdapter {
     ResourceService resourceService = ServiceLocator.getResourceService();
     resourceService.loadTextures(mainGameTextures);
     resourceService.loadTextureAtlases(mainGameAtlas);
-    resourceService.loadSounds(WheelConfig.SOUNDS);
+    resourceService.loadSounds(WheelConfig.SOUNDS.toArray(String[]::new));
     resourceService.loadMusic(gameEndMusic);
     SoundEffects.load(resourceService);
     resourceService.loadMusic(gameplayMusicFiles);
@@ -465,7 +465,7 @@ public class LevelsGameScreen extends ScreenAdapter {
     ResourceService resourceService = ServiceLocator.getResourceService();
     resourceService.unloadAssets(mainGameTextures);
     resourceService.unloadAssets(mainGameAtlas);
-    resourceService.unloadAssets(WheelConfig.SOUNDS);
+    resourceService.unloadAssets(WheelConfig.SOUNDS.toArray(String[]::new));
     SoundEffects.unload(resourceService);
     resourceService.unloadAssets(gameEndMusic);
     resourceService.unloadAssets(gameplayMusicFiles);

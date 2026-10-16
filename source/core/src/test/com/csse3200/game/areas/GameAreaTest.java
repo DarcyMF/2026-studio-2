@@ -9,6 +9,7 @@ import com.csse3200.game.areas.terrain.TerrainComponent;
 import com.csse3200.game.areas.terrain.configs.LevelConfig;
 import com.csse3200.game.areas.terrain.configs.SpawnData;
 import com.csse3200.game.components.CameraComponent;
+import com.csse3200.game.components.inventory.InventoryBarDisplay;
 import com.csse3200.game.components.inventory.InventoryComponent;
 import com.csse3200.game.components.item.ItemComponent;
 import com.csse3200.game.components.item.ItemType;
@@ -16,10 +17,12 @@ import com.csse3200.game.components.item.weapons.bow.arrow.Arrow;
 import com.csse3200.game.components.level.ActivatableComponent;
 import com.csse3200.game.components.level.LevelTriggerComponent;
 import com.csse3200.game.components.level.PlatformGrappleComponent;
+import com.csse3200.game.components.player.PlayerStatsDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.events.EventHandler;
 import com.csse3200.game.extensions.GameExtension;
+import com.csse3200.game.rendering.BackgroundRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
@@ -27,6 +30,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(GameExtension.class)
 class GameAreaTest {
+  @Test
+  void mapWidthDoesNotOverflowWhenAddingCameraPadding() {
+    CameraComponent camera = new CameraComponent();
+    GameArea area =
+        new GameArea(camera) {
+          @Override
+          public void create() {
+            // The map calculation needs no level assets.
+          }
+        };
+    area.player =
+        new Entity()
+            .addComponent(mock(InventoryBarDisplay.class))
+            .addComponent(mock(PlayerStatsDisplay.class));
+
+    area.toggleMap(
+        new Vector2(2147483648f, 100f), camera, mock(BackgroundRenderComponent.class), "level1");
+
+    assertEquals(2147483648f, camera.getCamera().viewportWidth);
+  }
+
   @Test
   void shouldNotDisposeCollectedItemsAgainWhenLeavingArea() {
     EntityService entities = new EntityService();

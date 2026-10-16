@@ -24,8 +24,8 @@ class SpinTheWheelScreenTest {
 
   @Test
   void shouldLoadTheWheelsAssets() {
-    assertArrayEquals(WheelConfig.TEXTURES, screen.getTextures());
-    assertArrayEquals(WheelConfig.SOUNDS, screen.getSounds());
+    assertArrayEquals(WheelConfig.TEXTURES.toArray(String[]::new), screen.getTextures());
+    assertArrayEquals(WheelConfig.SOUNDS.toArray(String[]::new), screen.getSounds());
   }
 
   @Test

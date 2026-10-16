@@ -140,8 +140,17 @@ public class CyclopsMinigameLogic extends Component {
   }
 
   /* Player Handling Functions */
+  private Vector2 worldPosition(GridPoint2 location) {
+    Vector2 position = terrainComponent.tileToWorldPosition(location);
+    if (position == null) {
+      throw new IllegalStateException(
+          "Cyclops terrain has no world coordinates for tile " + location);
+    }
+    return position.add(playerOffset);
+  }
+
   private void movePlayer(GridPoint2 location) {
-    Vector2 worldPos = this.terrainComponent.tileToWorldPosition(location).add(playerOffset);
+    Vector2 worldPos = worldPosition(location);
     logger.debug("Converting GridPoint2 Location ({}) to World Position ({})", location, worldPos);
     logger.info(
         "Moving Player (Entity {}) from orig:{} to dest:{}",
@@ -251,8 +260,7 @@ public class CyclopsMinigameLogic extends Component {
   private void beginRun(boolean success) {
     runSuccess = success;
     runStart = playerEntity.getPosition().cpy();
-    runTarget =
-        terrainComponent.tileToWorldPosition(advanceToNextLocation(runSuccess)).add(playerOffset);
+    runTarget = worldPosition(advanceToNextLocation(runSuccess));
     playWalkingSound();
     playerEntity.getEvents().trigger("walk", new Vector2(1, 0));
     playerEntity.getEvents().trigger("sprint");
@@ -349,10 +357,7 @@ public class CyclopsMinigameLogic extends Component {
 
   private void beginRetreat() {
     runStart = playerEntity.getPosition().cpy();
-    runTarget =
-        terrainComponent
-            .tileToWorldPosition(safeLocations.get(currentSafeLocation))
-            .add(playerOffset);
+    runTarget = worldPosition(safeLocations.get(currentSafeLocation));
     playWalkingSound();
     playerEntity.getEvents().trigger("walk", new Vector2(-1, 0));
     playerEntity.getEvents().trigger("sprint");

@@ -22,13 +22,13 @@ import com.csse3200.game.components.minigames.cyclopsMinigame.TimingBarLogic;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ObstacleFactory;
 import com.csse3200.game.entities.factories.PlayerFactory;
-import com.csse3200.game.input.CutsceneInputComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.BackgroundRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ResourceService;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,14 +97,14 @@ public class CyclopsMinigameArea extends GameArea {
   private static final String[] cyclopsMinigameMusic = {CAVE_BACKGROUND_MUSIC};
 
   // Indexed by hearts remaining after a hit. 0 hearts is the fatal hit, which uses placeholder 4.
-  public static final String[] HURT_VOICE_PATH_BY_HEARTS = {
-    HURT_PLAYER_FOUR_SOUND,
-    HURT_PLAYER_TWO_SOUND,
-    HURT_PLAYER_TWO_SOUND,
-    HURT_PLAYER_ONE_SOUND,
-    HURT_PLAYER_ONE_SOUND
-  };
-  public static final float[] HURT_VOLUME_BY_HEARTS = {0.6f, 0.3f, 0.3f, 0.3f, 0.3f};
+  public static final List<String> HURT_VOICE_PATH_BY_HEARTS =
+      List.of(
+          HURT_PLAYER_FOUR_SOUND,
+          HURT_PLAYER_TWO_SOUND,
+          HURT_PLAYER_TWO_SOUND,
+          HURT_PLAYER_ONE_SOUND,
+          HURT_PLAYER_ONE_SOUND);
+  public static final List<Float> HURT_VOLUME_BY_HEARTS = List.of(0.6f, 0.3f, 0.3f, 0.3f, 0.3f);
 
   private static final String[] cyclopsMinigameSounds = {
     "sounds/walkingSounds/walkingSound.mp3",
@@ -122,7 +122,7 @@ public class CyclopsMinigameArea extends GameArea {
 
   private final TerrainFactory terrainFactory;
 
-  private Entity player;
+  private Entity minigamePlayer;
   private Vector2 playerOffset = new Vector2();
   private float formationHeight;
 
@@ -133,8 +133,6 @@ public class CyclopsMinigameArea extends GameArea {
   private GridPoint2 winLocation;
   private ArrayList<GridPoint2> statueLocations;
   private ArrayList<GridPoint2> statueGapLocations;
-
-  private CutsceneInputComponent input;
 
   public CyclopsMinigameArea(CameraComponent camera, TerrainFactory terrainFactory) {
     super(camera);
@@ -148,7 +146,7 @@ public class CyclopsMinigameArea extends GameArea {
 
     spawnTerrain();
     spawnBackground();
-    player = spawnPlayer();
+    minigamePlayer = spawnPlayer();
     spawnStatues();
     Entity cyclops = spawnSleepingCyclops();
     displayFloor();
@@ -171,7 +169,7 @@ public class CyclopsMinigameArea extends GameArea {
     TimingBarLogic timingBarLogic = new TimingBarLogic(20f);
     TimingBarDisplay timingBarDisplay = new TimingBarDisplay(timingBarLogic);
     CyclopsMinigameLogic cyclopsMinigameLogic =
-        new CyclopsMinigameLogic(timingBarLogic, timingBarDisplay, terrain, player);
+        new CyclopsMinigameLogic(timingBarLogic, timingBarDisplay, terrain, minigamePlayer);
     cyclopsMinigameLogic.setWinLocation(winLocation);
     cyclopsMinigameLogic.setSafeLocations(statueLocations);
     cyclopsMinigameLogic.setLossLocations(statueGapLocations);
@@ -238,7 +236,8 @@ public class CyclopsMinigameArea extends GameArea {
     float viewHeight = cameraComponent.getCamera().viewportHeight;
     float cameraY = floorY + (0.5f - FLOOR_SCREEN_FRACTION) * viewHeight;
     CyclopsCameraFollowComponent follow =
-        new CyclopsCameraFollowComponent(player, cameraComponent.getCamera(), roomWidth, cameraY);
+        new CyclopsCameraFollowComponent(
+            minigamePlayer, cameraComponent.getCamera(), roomWidth, cameraY);
     cyclops.getEvents().addListener(CyclopsAnimationController.LANDED_EVENT, follow::shake);
     Entity cameraEntityHolder = new Entity().addComponent(follow);
     spawnEntity(cameraEntityHolder);
@@ -273,7 +272,7 @@ public class CyclopsMinigameArea extends GameArea {
   private void spawnStatues() {
     this.statueLocations = new ArrayList<>(NUM_STATUES);
     this.statueGapLocations = new ArrayList<>(NUM_STATUES);
-    formationHeight = formationHeightFor(player.getScale().y);
+    formationHeight = formationHeightFor(minigamePlayer.getScale().y);
 
     for (int i = 1; i <= NUM_STATUES; i++) {
       int x = statueTileX(i);
@@ -340,7 +339,7 @@ public class CyclopsMinigameArea extends GameArea {
         new Entity()
             .addComponent(cyclopsAnimator)
             .addComponent(
-                new CyclopsAnimationController(player, middle.y + STATUE_DEPTH_OFFSET / 2f))
+                new CyclopsAnimationController(minigamePlayer, middle.y + STATUE_DEPTH_OFFSET / 2f))
             .addComponent(new CyclopsSoundComponent());
     cyclopsAnimator.scaleEntity();
     cyclops.scaleWidth(CYCLOPS_FRAME_WIDTH);
@@ -423,10 +422,11 @@ public class CyclopsMinigameArea extends GameArea {
   }
 
   private Sound[] loadHurtVoices() {
-    Sound[] voices = new Sound[HURT_VOICE_PATH_BY_HEARTS.length];
-    for (int i = 0; i < HURT_VOICE_PATH_BY_HEARTS.length; i++) {
+    Sound[] voices = new Sound[HURT_VOICE_PATH_BY_HEARTS.size()];
+    for (int i = 0; i < HURT_VOICE_PATH_BY_HEARTS.size(); i++) {
       voices[i] =
-          ServiceLocator.getResourceService().getAsset(HURT_VOICE_PATH_BY_HEARTS[i], Sound.class);
+          ServiceLocator.getResourceService()
+              .getAsset(HURT_VOICE_PATH_BY_HEARTS.get(i), Sound.class);
     }
     return voices;
   }

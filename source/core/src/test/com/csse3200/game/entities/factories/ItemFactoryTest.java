@@ -67,8 +67,8 @@ class ItemFactoryTest {
     assertItemMapping(ItemType.HEALTH_POTION, HealthPotion.class);
     assertItemMapping(ItemType.FIRE_ARROW, Arrow.class);
     assertItemMapping(ItemType.ICE_ARROW, Arrow.class);
-    assertItemMapping(ItemType.SpeedPotion, SpeedPotion.class);
-    assertItemMapping(ItemType.PoisonPotion, PoisonPotion.class);
+    assertItemMapping(ItemType.SPEED_POTION, SpeedPotion.class);
+    assertItemMapping(ItemType.POISON_POTION, PoisonPotion.class);
   }
 
   @Test
@@ -92,6 +92,21 @@ class ItemFactoryTest {
 
     assertEquals(ItemType.ICE_ARROW, item.getItemType());
     assertEquals(2, item.getQuantity());
+  }
+
+  @Test
+  void potionCatalogNamesStillCreateTheSameItems() {
+    Item speed =
+        ItemFactory.createItem("speedPotion", 2).getComponent(ItemComponent.class).getItem();
+    Item poison =
+        ItemFactory.createItem("poisonPotion", 3).getComponent(ItemComponent.class).getItem();
+
+    assertInstanceOf(SpeedPotion.class, speed);
+    assertEquals(8, speed.getItemType().getId());
+    assertEquals(2, speed.getQuantity());
+    assertInstanceOf(PoisonPotion.class, poison);
+    assertEquals(9, poison.getItemType().getId());
+    assertEquals(3, poison.getQuantity());
   }
 
   @Test

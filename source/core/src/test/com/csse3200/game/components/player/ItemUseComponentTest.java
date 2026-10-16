@@ -407,7 +407,7 @@ class ItemUseComponentTest {
   void shouldTriggerSpeedPotionBuffAndConsumePotion() {
     Entity player = createPlayer();
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
-    inventory.addItem(ItemType.SpeedPotion, 1);
+    inventory.addItem(ItemType.SPEED_POTION, 1);
 
     AtomicReference<Float> boost = new AtomicReference<>();
     AtomicReference<Float> duration = new AtomicReference<>();
@@ -422,9 +422,9 @@ class ItemUseComponentTest {
 
     assertTrue(player.getComponent(ItemUseComponent.class).useSelectedItem());
 
-    assertEquals(ItemType.SpeedPotion.getSpeedBoost(), boost.get(), 0.001f);
-    assertEquals(ItemType.SpeedPotion.getDuration(), duration.get(), 0.001f);
-    assertEquals(0, inventory.getItemCount(ItemType.SpeedPotion));
+    assertEquals(ItemType.SPEED_POTION.getSpeedBoost(), boost.get(), 0.001f);
+    assertEquals(ItemType.SPEED_POTION.getDuration(), duration.get(), 0.001f);
+    assertEquals(0, inventory.getItemCount(ItemType.SPEED_POTION));
   }
 
   @Test
@@ -435,10 +435,10 @@ class ItemUseComponentTest {
 
     Entity player = createPlayer();
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
-    inventory.addItem(ItemType.PoisonPotion, 2);
+    inventory.addItem(ItemType.POISON_POTION, 2);
 
     assertTrue(player.getComponent(ItemUseComponent.class).useSelectedItem());
-    assertEquals(1, inventory.getItemCount(ItemType.PoisonPotion));
+    assertEquals(1, inventory.getItemCount(ItemType.POISON_POTION));
     verify(entities).register(any(Entity.class));
   }
 
@@ -450,11 +450,11 @@ class ItemUseComponentTest {
 
     Entity player = createPlayer();
     InventoryComponent inventory = player.getComponent(InventoryComponent.class);
-    inventory.addItem(ItemType.PoisonPotion, 2);
+    inventory.addItem(ItemType.POISON_POTION, 2);
 
     assertTrue(player.getComponent(ItemUseComponent.class).useSelectedItem());
     assertTrue(player.getComponent(ItemUseComponent.class).useSelectedItem());
-    assertEquals(0, inventory.getItemCount(ItemType.PoisonPotion));
+    assertEquals(0, inventory.getItemCount(ItemType.POISON_POTION));
   }
 
   private void assertArrowUsesBowType(ItemType itemType, ArrowType expectedArrowType) {

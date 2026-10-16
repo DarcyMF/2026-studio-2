@@ -4,7 +4,6 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.GridPoint2;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.areas.terrain.TerrainFactory;
 import com.csse3200.game.areas.terrain.TerrainFactory.TerrainType;
@@ -64,9 +63,8 @@ public class Level1GameArea extends GameArea {
   public static final GridPoint2 HEALTH_POTION_SPAWN = new GridPoint2(12, 5);
 
   /** Sit on top of the 1-tile-tall floating platforms (skip the first, which has the shop). */
-  public static final GridPoint2[] GOLD_SPAWNS = {
-    new GridPoint2(9, 5), new GridPoint2(15, 7), new GridPoint2(20, 8)
-  };
+  public static final List<GridPoint2> GOLD_SPAWNS =
+      List.of(new GridPoint2(9, 5), new GridPoint2(15, 7), new GridPoint2(20, 8));
 
   /** Centre of the stepping-stone platform at (31, 2) */
   public static final GridPoint2 WHEEL_TOKEN_SPAWN = new GridPoint2(32, 3);
@@ -330,15 +328,9 @@ public class Level1GameArea extends GameArea {
   private void spawnSideRooms() {
     spawnRoom(110, "images/terrain/Others/npc_room.png");
     spawnRoom(140, "images/terrain/Others/normal_cave.png");
-    Rectangle mainBounds = new Rectangle(0, 0, worldBounds.x, worldBounds.y);
     // Only one entrance on the main map: a reverse climb onto the original roof.
-    spawnDoor(
-        3,
-        23,
-        "Enter the hidden refuge",
-        new Vector2(115, 2.1f),
-        new Rectangle(110, 0, 20, 11.25f));
-    spawnDoor(112, 2, "Return to the desert", new Vector2(6, 23.1f), mainBounds);
+    spawnDoor(3, 23, "Enter the hidden refuge", new Vector2(115, 2.1f));
+    spawnDoor(112, 2, "Return to the desert", new Vector2(6, 23.1f));
     // The Easter egg is a second discovery inside the refuge, not another main-route door.
     Entity alcove =
         ObstacleFactory.createPlatform(
@@ -347,14 +339,8 @@ public class Level1GameArea extends GameArea {
     alcove.setScale(4, 1);
     alcove.setPosition(125, 4);
     spawnEntity(alcove);
-    spawnDoor(
-        127,
-        5,
-        "Explore the quiet cave",
-        new Vector2(145, 2.1f),
-        new Rectangle(140, 0, 20, 11.25f));
-    spawnDoor(
-        142, 2, "Return to the refuge", new Vector2(125, 5.1f), new Rectangle(110, 0, 20, 11.25f));
+    spawnDoor(127, 5, "Explore the quiet cave", new Vector2(145, 2.1f));
+    spawnDoor(142, 2, "Return to the refuge", new Vector2(125, 5.1f));
 
     for (int i = 0; i < 3; i++) {
       AnimationRenderComponent sheepAnimator =
@@ -371,11 +357,11 @@ public class Level1GameArea extends GameArea {
     }
   }
 
-  private void spawnDoor(float x, float y, String label, Vector2 destination, Rectangle bounds) {
+  private void spawnDoor(float x, float y, String label, Vector2 destination) {
     Entity door =
         new Entity()
             .addComponent(new CaveEntranceRenderComponent())
-            .addComponent(new RoomDoorComponent(player, camera, destination, bounds, label))
+            .addComponent(new RoomDoorComponent(player, camera, destination, label))
             .addComponent(new RoomDoorDisplay());
     door.setScale(2f, 2.67f);
     door.setPosition(x, y);
