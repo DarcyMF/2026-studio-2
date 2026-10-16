@@ -58,8 +58,8 @@ class ArrowProjectileComponentTest {
     java.util.logging.Handler handler =
         new java.util.logging.Handler() {
           @Override
-          public void publish(java.util.logging.LogRecord record) {
-            warnings.add(record);
+          public void publish(java.util.logging.LogRecord logRecord) {
+            warnings.add(logRecord);
           }
 
           @Override
@@ -84,9 +84,9 @@ class ArrowProjectileComponentTest {
       assertTrue(
           warnings.stream()
               .anyMatch(
-                  record ->
-                      record.getLevel().intValue() >= java.util.logging.Level.WARNING.intValue()
-                          && record.getMessage().contains("physics body")));
+                  logRecord ->
+                      logRecord.getLevel().intValue() >= java.util.logging.Level.WARNING.intValue()
+                          && logRecord.getMessage().contains("physics body")));
     } finally {
       logger.removeHandler(handler);
     }
