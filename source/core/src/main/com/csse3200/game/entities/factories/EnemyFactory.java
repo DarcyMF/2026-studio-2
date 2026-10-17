@@ -41,7 +41,6 @@ import com.csse3200.game.physics.components.PhysicsMovementComponent;
 import com.csse3200.game.rendering.AnimationRenderComponent;
 import com.csse3200.game.rendering.EnemyHealthRenderComponent;
 import com.csse3200.game.rendering.ParticleEffectsRenderingComponent;
-import com.csse3200.game.rendering.StatusEffectRenderComponent;
 import com.csse3200.game.rendering.TextureRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.List;
@@ -309,9 +308,7 @@ public class EnemyFactory {
             .addComponent(new ParticleEffectsRenderingComponent())
             .addComponent(new EnemyItemDropComponent(config.itemDrops))
             .addComponent(new EnemyHealthRenderComponent())
-            .addComponent(aiComponent)
-            .addComponent(new SlowStatsComponent())
-            .addComponent(new StatusEffectRenderComponent());
+            .addComponent(aiComponent);
 
     PhysicsUtils.setScaledCollider(enemy, 0.9f, 0.4f); // 0.4f seems small: any reason?
 
