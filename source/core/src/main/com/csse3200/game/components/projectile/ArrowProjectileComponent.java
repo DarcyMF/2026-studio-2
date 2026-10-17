@@ -15,6 +15,8 @@ import com.csse3200.game.physics.PhysicsLayer;
 import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.HashSet;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +43,23 @@ public class ArrowProjectileComponent extends Component {
   private final float poisonDamagePerSecond;
   private final float poisonDuration;
 
+  // What this arrow damages, and what it flies straight through. A player's arrow by default.
+  private short targetLayers = TARGET_LAYERS;
+  private short ignoredLayers = PhysicsLayer.PLAYER;
+
+  // Terrain the arrow was already touching while it was still too close to where it spawned to
+  // react
+  // to. If it is still touching it once it has moved clear of the spawn, it has hit that terrain.
+  private final Set<Fixture> earlyTerrainContacts = new HashSet<>();
+
   private PhysicsComponent physicsComponent;
   private HitboxComponent hitboxComponent;
   private CombatStatsComponent combatStats;
   private Vector2 startPosition;
   private boolean spent;
+
+  // Set once the arrow has been stopped to be moved by hand: the way it was facing at that moment
+  private Vector2 frozenDirection;
 
   public ArrowProjectileComponent(Vector2 direction, float speed, float maximumRange) {
     this(null, direction, speed, maximumRange, ArrowType.STANDARD);
@@ -85,6 +99,19 @@ public class ArrowProjectileComponent extends Component {
     this.poisonDuration = poisonDuration;
   }
 
+  /**
+   * Makes this an enemy's arrow: it damages the player and flies straight through other enemies,
+   * instead of damaging enemies and passing through the player. Everything else about its flight is
+   * the same. Call this before the entity is created.
+   *
+   * @return this component
+   */
+  public ArrowProjectileComponent hurtsPlayer() {
+    targetLayers = PhysicsLayer.PLAYER;
+    ignoredLayers = PhysicsLayer.NPC;
+    return this;
+  }
+
   @Override
   public void create() {
     physicsComponent = entity.getComponent(PhysicsComponent.class);
@@ -97,21 +124,25 @@ public class ArrowProjectileComponent extends Component {
     body.setLinearDamping(0f);
     body.setBullet(true);
     body.setLinearVelocity(direction.cpy().scl(speed));
-    ignorePlayerCollisions(body);
+    ignoreCollisions(body);
     startPosition = getWorldCenter();
 
     entity.getEvents().addListener("collisionStart", this::onCollisionStart);
+    entity.getEvents().addListener("collisionEnd", this::onCollisionEnd);
   }
 
-  /** Lets a fired arrow pass through the player instead of shoving them. */
-  private void ignorePlayerCollisions(Body body) {
+  /**
+   * Lets a fired arrow pass through whoever it is not meant to hit - the player for a player's
+   * arrow, enemies for an enemy's - instead of shoving them.
+   */
+  private void ignoreCollisions(Body body) {
     // Entity component creation order is unspecified: the hitbox may not have a fixture yet.
     if (hitboxComponent != null) {
-      hitboxComponent.excludeCollisionLayers(PhysicsLayer.PLAYER);
+      hitboxComponent.excludeCollisionLayers(ignoredLayers);
     }
     for (Fixture fixture : body.getFixtureList()) {
       Filter filter = fixture.getFilterData();
-      filter.maskBits &= ~PhysicsLayer.PLAYER;
+      filter.maskBits &= ~ignoredLayers;
       fixture.setFilterData(filter);
     }
   }
@@ -134,6 +165,12 @@ public class ArrowProjectileComponent extends Component {
           position,
           position.dst(origin),
           maximumRange);
+      expire();
+      return;
+    }
+
+    // An arrow that started out touching terrain and is still in it has flown into that terrain.
+    if (!earlyTerrainContacts.isEmpty() && hasClearedSpawn()) {
       expire();
       return;
     }
@@ -199,17 +236,27 @@ public class ArrowProjectileComponent extends Component {
     }
 
     short otherLayer = other.getFilterData().categoryBits;
-    if (PhysicsLayer.contains(PhysicsLayer.PLAYER, otherLayer)) {
+    if (PhysicsLayer.contains(ignoredLayers, otherLayer)) {
       return;
     }
 
-    if (PhysicsLayer.contains(TARGET_LAYERS, otherLayer)) {
+    if (PhysicsLayer.contains(targetLayers, otherLayer)) {
       if (damageTarget(other)) {
         expire();
       }
-    } else if (PhysicsLayer.contains(TERRAIN, otherLayer) && hasClearedSpawn()) {
-      expire();
+    } else if (PhysicsLayer.contains(TERRAIN, otherLayer)) {
+      if (hasClearedSpawn()) {
+        expire();
+      } else {
+        // Too close to the spawn point to count (it may just be the shooter's own ledge), but if
+        // the arrow is still in this terrain once it has moved clear, update() removes it.
+        earlyTerrainContacts.add(other);
+      }
     }
+  }
+
+  private void onCollisionEnd(Fixture me, Fixture other) {
+    earlyTerrainContacts.remove(other);
   }
 
   private boolean hasClearedSpawn() {
@@ -289,7 +336,37 @@ public class ArrowProjectileComponent extends Component {
     return direction.cpy();
   }
 
+  /**
+   * Stops the arrow dead where it is, so it can be moved by hand with {@link
+   * #moveCentreTo(Vector2)}. It keeps facing the way it was flying instead of reverting to the way
+   * it was launched. Call this from an entity update, never from inside a collision callback.
+   */
+  public void stop() {
+    Vector2 facing = getCurrentDirection();
+    Body body = physicsComponent.getBody();
+    body.setLinearVelocity(Vector2.Zero);
+    body.setGravityScale(0f);
+    frozenDirection = facing;
+  }
+
+  /**
+   * Puts the arrow's centre at a point, keeping the angle it is at. Meant for an arrow that has
+   * been {@link #stop() stopped}. Call this from an entity update, never from inside a collision
+   * callback.
+   *
+   * @param centre where the middle of the arrow's collision box should be
+   */
+  public void moveCentreTo(Vector2 centre) {
+    Body body = physicsComponent.getBody();
+    float angle = body.getAngle();
+    Vector2 origin = centre.cpy().sub(localCenter().rotateRad(angle));
+    body.setTransform(origin, angle);
+  }
+
   public Vector2 getCurrentDirection() {
+    if (frozenDirection != null) {
+      return frozenDirection.cpy();
+    }
     if (physicsComponent != null && physicsComponent.getBody() != null) {
       Vector2 vel = physicsComponent.getBody().getLinearVelocity();
       if (!vel.isZero()) {
