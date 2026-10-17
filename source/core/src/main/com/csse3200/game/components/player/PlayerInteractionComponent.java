@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
  * <p>Requires an InventoryComponent on this entity.
  */
 public class PlayerInteractionComponent extends Component {
+  private static final String INTERACTION_FAILED = "interactionFailed";
+
   private static final Logger logger = LoggerFactory.getLogger(PlayerInteractionComponent.class);
 
   /** Maximum distance, in metres, at which the player can interact with an item or NPC. */
@@ -69,7 +71,7 @@ public class PlayerInteractionComponent extends Component {
     Entity target = nearer(nearer(gold, item), token);
     if (target == null) {
       logger.debug("No interactable entity in range of {}", entity);
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
     if (target.getComponent(GoldPickupComponent.class) != null) {
@@ -101,13 +103,13 @@ public class PlayerInteractionComponent extends Component {
    */
   boolean pickup(Entity itemEntity) {
     if (itemEntity == null || !isInRange(itemEntity)) {
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
 
     ItemComponent itemComponent = itemEntity.getComponent(ItemComponent.class);
     if (itemComponent == null) {
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
 
@@ -131,13 +133,13 @@ public class PlayerInteractionComponent extends Component {
    */
   boolean pickupGold(Entity goldEntity) {
     if (goldEntity == null || !isInRange(goldEntity)) {
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
 
     GoldPickupComponent goldPickup = goldEntity.getComponent(GoldPickupComponent.class);
     if (goldPickup == null) {
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
 
@@ -159,7 +161,7 @@ public class PlayerInteractionComponent extends Component {
     if (tokenEntity == null
         || !isInRange(tokenEntity)
         || tokenEntity.getComponent(WheelTokenPickupComponent.class) == null) {
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
 
@@ -176,14 +178,14 @@ public class PlayerInteractionComponent extends Component {
   boolean dropItem() {
     ItemType selected = inventory.getSelectedItem();
     if (selected == null) {
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
 
     int quantity = inventory.getItemCount(selected);
 
     if (!inventory.removeItem(selected, quantity)) {
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
 
@@ -203,14 +205,14 @@ public class PlayerInteractionComponent extends Component {
   boolean deleteItem() {
     ItemType selected = inventory.getSelectedItem();
     if (selected == null) {
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
 
     int quantity = inventory.getItemCount(selected);
 
     if (!inventory.removeItem(selected, quantity)) {
-      entity.getEvents().trigger("interactionFailed");
+      entity.getEvents().trigger(INTERACTION_FAILED);
       return false;
     }
 
@@ -333,8 +335,8 @@ public class PlayerInteractionComponent extends Component {
       case FIRE_ARROW -> ItemFactory.createFireArrow(quantity);
       case ICE_ARROW -> ItemFactory.createIceArrow(quantity);
       case HEALTH_POTION -> ItemFactory.createHealthPotion(quantity);
-      case SpeedPotion -> ItemFactory.createSpeedPotion(quantity);
-      case PoisonPotion -> ItemFactory.createPoisonPotion(quantity);
+      case SPEED_POTION -> ItemFactory.createSpeedPotion(quantity);
+      case POISON_POTION -> ItemFactory.createPoisonPotion(quantity);
     };
   }
 }
