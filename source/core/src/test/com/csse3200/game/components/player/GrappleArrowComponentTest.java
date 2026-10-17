@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.csse3200.game.components.item.weapons.bow.grapple.GrappleArrowComponent;
 import com.csse3200.game.components.item.weapons.bow.grapple.GrappleComponent;
+import com.csse3200.game.components.projectile.ArrowProjectileComponent;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.EntityService;
 import com.csse3200.game.extensions.GameExtension;
@@ -377,6 +378,42 @@ class GrappleArrowComponentTest {
     land(arrow);
 
     assertEquals(1, failures.size());
+  }
+
+  @Test
+  void shouldReportAFailureWhereTheArrowRanOutOfRange() {
+    Entity shooter = shooterWithFeetAt(0f, spy(new GrappleComponent()));
+    List<Vector2> failures = failuresReportedTo(shooter);
+    Entity arrow = arrowCentredAtHeight(shooter, 5f);
+
+    arrow.getEvents().trigger(ArrowProjectileComponent.RANGE_EXCEEDED_EVENT, new Vector2(7f, 20f));
+
+    assertEquals(1, failures.size());
+    assertEquals(new Vector2(7f, 20f), failures.get(0));
+  }
+
+  @Test
+  void shouldNotReportRunningOutOfRangeForAHookThatAlreadyLanded() {
+    Entity shooter = shooterWithFeetAt(10f, spy(new GrappleComponent()));
+    List<Vector2> failures = failuresReportedTo(shooter);
+    Entity arrow = arrowCentredAtHeight(shooter, 4f);
+
+    land(arrow); // missed the floor: that is the one marker for this shot
+    arrow.getEvents().trigger(ArrowProjectileComponent.RANGE_EXCEEDED_EVENT, new Vector2(7f, 4f));
+
+    assertEquals(1, failures.size());
+  }
+
+  @Test
+  void shouldNotReportRunningOutOfRangeForAHookThatCaught() {
+    Entity shooter = shooterWithFeetAt(0f, spy(new GrappleComponent()));
+    List<Vector2> failures = failuresReportedTo(shooter);
+    Entity arrow = arrowCentredAtHeight(shooter, 5f);
+
+    land(arrow);
+    arrow.getEvents().trigger(ArrowProjectileComponent.RANGE_EXCEEDED_EVENT, new Vector2(7f, 5f));
+
+    assertEquals(0, failures.size());
   }
 
   @Test

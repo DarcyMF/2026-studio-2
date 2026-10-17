@@ -20,6 +20,8 @@ import com.csse3200.game.physics.components.HitboxComponent;
 import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.services.GameTime;
 import com.csse3200.game.services.ServiceLocator;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -240,6 +242,40 @@ class ArrowProjectileComponentTest {
     projectile.update();
 
     assertTrue(projectile.isSpent());
+  }
+
+  @Test
+  void shouldAnnounceWhereItRanOutOfRange() {
+    Entity arrow = createArrow(Vector2.X, 10f, 15f);
+    ArrowProjectileComponent projectile = arrow.getComponent(ArrowProjectileComponent.class);
+    arrow.getComponent(PhysicsComponent.class).getBody().setTransform(15f, 3f, 0f);
+    List<Vector2> announced = new ArrayList<>();
+    arrow
+        .getEvents()
+        .addListener(
+            ArrowProjectileComponent.RANGE_EXCEEDED_EVENT, (Vector2 point) -> announced.add(point));
+    Vector2 centre = projectile.getWorldCenter();
+
+    projectile.update();
+    projectile.update(); // already spent: it must not announce a second time
+
+    assertEquals(1, announced.size());
+    assertTrue(announced.get(0).epsilonEquals(centre, 1e-4f));
+  }
+
+  @Test
+  void shouldNotAnnounceRangeBeforeItIsReached() {
+    Entity arrow = createArrow(Vector2.X, 10f, 15f);
+    List<Vector2> announced = new ArrayList<>();
+    arrow
+        .getEvents()
+        .addListener(
+            ArrowProjectileComponent.RANGE_EXCEEDED_EVENT, (Vector2 point) -> announced.add(point));
+    arrow.getComponent(PhysicsComponent.class).getBody().setTransform(10f, 0f, 0f);
+
+    arrow.getComponent(ArrowProjectileComponent.class).update();
+
+    assertEquals(0, announced.size());
   }
 
   @Test

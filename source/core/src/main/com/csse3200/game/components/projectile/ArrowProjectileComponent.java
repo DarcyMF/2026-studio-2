@@ -32,6 +32,12 @@ public class ArrowProjectileComponent extends Component {
   /** How much of the world's gravity every arrow (grapple included) falls under in flight. */
   public static final float ARC_GRAVITY_SCALE = 0.4f;
 
+  /**
+   * Triggered on the arrow, with the arrow's centre as a {@code Vector2}, when it has flown its
+   * full range and is about to be removed.
+   */
+  public static final String RANGE_EXCEEDED_EVENT = "arrowRangeExceeded";
+
   private static final float MIN_TRAVEL = 0.5f;
   private static final String POTION_SMASH_SOUND = "sounds/Bottle Break.wav";
 
@@ -165,6 +171,7 @@ public class ArrowProjectileComponent extends Component {
           position,
           position.dst(origin),
           maximumRange);
+      entity.getEvents().trigger(RANGE_EXCEEDED_EVENT, position.cpy());
       expire();
       return;
     }

@@ -160,10 +160,29 @@ class GrappleArrowFloorIntegrationTest {
   }
 
   @Test
-  void shouldNotShowAFailureWhenTheArrowSimplyRunsOutOfRange() {
-    fire(new Vector2(0f, 1f), 1.5f);
+  void shouldShowTheMarkerWhereTheArrowRanOutOfRange() {
+    // Straight up, with nothing there to hit: the arrow gives up in mid-air.
+    Flight flight = fire(new Vector2(0f, 1f), 1.5f);
 
-    assertEquals(0, failures.size());
+    assertTrue(flight.gone());
+    assertEquals(1, failures.size(), "an arrow that flew its range should also show the X");
+    assertEquals(0f, failures.get(0).x, 0.5f);
+    assertEquals(
+        ProjectileFactory.GRAPPLE_ARROW_RANGE,
+        failures.get(0).y,
+        0.8f,
+        "at the point it gave up, " + ProjectileFactory.GRAPPLE_ARROW_RANGE + " from the shooter");
+    assertDidNotHook();
+  }
+
+  @Test
+  void shouldShowOnlyTheFloorsMarkerForAWeakShotThatFallsBackDown() {
+    // A weak shot straight up falls back down well short of the range, and lands on the floor: that
+    // is the floor's marker, and there must be only the one.
+    fire(new Vector2(0f, 1f), 0.3f);
+
+    assertEquals(1, failures.size());
+    assertEquals(0f, failures.get(0).y, 0.15f, "on the floor, not in mid-air");
   }
 
   @Test

@@ -59,6 +59,18 @@ public class GrappleArrowComponent extends Component {
   @Override
   public void create() {
     entity.getEvents().addListener("collisionStart", this::onCollision);
+    entity
+        .getEvents()
+        .addListener(ArrowProjectileComponent.RANGE_EXCEEDED_EVENT, this::onOutOfRange);
+  }
+
+  /** The arrow flew its full range without reaching anything: the player gets the same marker. */
+  private void onOutOfRange(Vector2 point) {
+    // A hook that already landed (and is being held or reeled in) has had its marker
+    if (spent) {
+      return;
+    }
+    shooter.getEvents().trigger("grappleFailed", point.cpy());
   }
 
   @Override
