@@ -50,7 +50,9 @@ public class RoomDoorDisplay extends UIComponent {
   }
 
   @Override
-  protected void draw(SpriteBatch batch) {}
+  protected void draw(SpriteBatch batch) {
+    // Scene2D actors on the stage render this UI.
+  }
 
   @Override
   public void dispose() {

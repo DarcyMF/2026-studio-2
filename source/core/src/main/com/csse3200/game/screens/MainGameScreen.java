@@ -60,6 +60,7 @@ public class MainGameScreen extends ScreenAdapter {
   private final Renderer renderer;
   private final PhysicsEngine physicsEngine;
   private Entity player;
+  private Terminal terminal;
   private final SpinTheWheelOverlay wheelOverlay;
   private final BlackjackOverlay blackjackOverlay;
   private final MinigameOverlayManager minigameOverlayManager;
@@ -105,7 +106,7 @@ public class MainGameScreen extends ScreenAdapter {
     wheelOverlay = new SpinTheWheelOverlay(WheelConfig.ITEMS, player, minigameOverlayManager);
     player.getEvents().addListener("spinTheWheel", wheelOverlay::request);
     blackjackOverlay = new BlackjackOverlay(player, minigameOverlayManager);
-    pauseOverlay = new PauseMenuOverlay(game, forestGameArea);
+    pauseOverlay = new PauseMenuOverlay(game);
   }
 
   private void onPlayerDeath() {
@@ -116,15 +117,14 @@ public class MainGameScreen extends ScreenAdapter {
 
   @Override
   public void render(float delta) {
-    if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)
+    // Overlay shortcuts bypass the input handler chain, so ignore them while the terminal is
+    // open. F1 still toggles the terminal itself.
+    boolean terminalOpen = terminal != null && terminal.isOpen();
+    if (!terminalOpen
+        && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)
         && !ServiceLocator.getEntityService().getSettingsOpen()) {
       pauseOverlay.request();
     }
-    /*
-    if (Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-      blackjackOverlay.request();
-    }
-     */
 
     physicsEngine.update();
     ServiceLocator.getEntityService().update();
@@ -200,8 +200,8 @@ public class MainGameScreen extends ScreenAdapter {
                 "images/Buttons/x_down_btn.png"));
 
     paths.addAll(List.of(ItemAssets.getTextures()));
-    paths.addAll(List.of(WheelConfig.TEXTURES));
-    paths.addAll(List.of(BlackjackConfig.TEXTURES));
+    paths.addAll(WheelConfig.TEXTURES);
+    paths.addAll(BlackjackConfig.TEXTURES);
     return paths.toArray(new String[0]);
   }
 
@@ -209,7 +209,7 @@ public class MainGameScreen extends ScreenAdapter {
     logger.debug("Loading assets");
     ResourceService resourceService = ServiceLocator.getResourceService();
     resourceService.loadTextures(mainGameTextures);
-    resourceService.loadSounds(WheelConfig.SOUNDS);
+    resourceService.loadSounds(WheelConfig.SOUNDS.toArray(String[]::new));
     ButtonSound.load(resourceService);
     ServiceLocator.getResourceService().loadAll();
   }
@@ -218,7 +218,7 @@ public class MainGameScreen extends ScreenAdapter {
     logger.debug("Unloading assets");
     ResourceService resourceService = ServiceLocator.getResourceService();
     resourceService.unloadAssets(mainGameTextures);
-    resourceService.unloadAssets(WheelConfig.SOUNDS);
+    resourceService.unloadAssets(WheelConfig.SOUNDS.toArray(String[]::new));
     ButtonSound.unload(resourceService);
   }
 
@@ -233,13 +233,14 @@ public class MainGameScreen extends ScreenAdapter {
         ServiceLocator.getInputService().getInputFactory().createForTerminal();
 
     Entity ui = new Entity();
+    terminal = new Terminal(game, GdxGame.ScreenType.MAIN_GAME);
     ui.addComponent(new InputDecorator(stage, 10))
         .addComponent(new PerformanceDisplay())
         .addComponent(new MainGameActions(this.game))
         .addComponent(new MainGameExitDisplay())
         .addComponent(new GameEndDisplay(GameEndState.LOSE))
         .addComponent(new GameEndActions(this.game))
-        .addComponent(new Terminal(game, GdxGame.ScreenType.MAIN_GAME))
+        .addComponent(terminal)
         .addComponent(inputComponent)
         .addComponent(new TerminalDisplay());
 

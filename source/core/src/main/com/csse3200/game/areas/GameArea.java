@@ -15,6 +15,7 @@ import com.csse3200.game.components.player.KeyboardPlayerInputComponent;
 import com.csse3200.game.components.player.PlayerStatsDisplay;
 import com.csse3200.game.entities.Entity;
 import com.csse3200.game.entities.factories.ItemFactory;
+import com.csse3200.game.physics.components.PhysicsComponent;
 import com.csse3200.game.rendering.BackgroundRenderComponent;
 import com.csse3200.game.services.ServiceLocator;
 import java.util.ArrayList;
@@ -28,6 +29,8 @@ import java.util.List;
  * <p>Support for enabling/disabling game areas could be added by making this a Component instead.
  */
 public abstract class GameArea implements Disposable {
+  private static final String ACTIVATE_BY_KEY = "activateByKey";
+
   /** Camera used by this game area. */
   protected final CameraComponent cameraComponent;
 
@@ -125,20 +128,20 @@ public abstract class GameArea implements Disposable {
       // listen for trigger buttons' activation event call
       TriggerButtonComponent trigger = entity.getComponent(TriggerButtonComponent.class);
       if (trigger != null) {
-        entity.getEvents().addListener("activateByKey", this::onButtonActivated);
+        entity.getEvents().addListener(ACTIVATE_BY_KEY, this::onButtonActivated);
       }
     }
 
     // listen for trigger entity activation events
     TriggerComponent trigger = entity.getComponent(TriggerComponent.class);
     if (trigger != null) {
-      entity.getEvents().addListener("activateByKey", this::onButtonActivated);
+      entity.getEvents().addListener(ACTIVATE_BY_KEY, this::onButtonActivated);
     }
 
     // listen for any spawner completion activation events
     SpawnerComponent spawner = entity.getComponent(SpawnerComponent.class);
     if (spawner != null) {
-      entity.getEvents().addListener("activateByKey", this::onButtonActivated);
+      entity.getEvents().addListener(ACTIVATE_BY_KEY, this::onButtonActivated);
     }
 
     // listen for checkpoint activations
@@ -198,7 +201,7 @@ public abstract class GameArea implements Disposable {
    * specified position
    */
   protected void spawnConfigEntities() {
-    ArrayList<SpawnData> entities = config.createEntities();
+    List<SpawnData> entities = config.createEntities();
 
     for (SpawnData data : entities) {
       spawnEntityAt(data.entity, data.pos, false, false);
@@ -306,7 +309,29 @@ public abstract class GameArea implements Disposable {
 
   /** Public method to respawn the player at the last collected checkpoint upon an event trigger. */
   public void respawn() {
-    ArrayList<CheckpointComponent> checkpoints = config.getCheckpoints();
+    GridPoint2 respawnPoint = getRespawnPoint();
+    resetPlayerVelocity();
+    RespawnComponent respawn = player.getComponent(RespawnComponent.class);
+    respawn.queueRespawn(new Vector2(respawnPoint.x, respawnPoint.y));
+  }
+
+  /**
+   * Restart after death/game-over: teleport to the last checkpoint and revive with a health
+   * penalty. Unlike a full level reload, checkpoint progress is kept.
+   */
+  public void restart() {
+    GridPoint2 respawnPoint = getRespawnPoint();
+    resetPlayerVelocity();
+    player.setEnabled(true);
+    RespawnComponent.reviveWithPenalty(player);
+    RespawnComponent respawn = player.getComponent(RespawnComponent.class);
+    respawn.queueRespawn(new Vector2(respawnPoint.x, respawnPoint.y));
+    player.getEvents().trigger("revive");
+  }
+
+  /** Last collected checkpoint position, or the level spawn if none collected. */
+  public GridPoint2 getRespawnPoint() {
+    List<CheckpointComponent> checkpoints = config.getCheckpoints();
     // If no checkpoints collected use playerSpawn as respawnPoint
     GridPoint2 respawnPoint = config.getPlayerSpawn();
 
@@ -318,11 +343,17 @@ public abstract class GameArea implements Disposable {
         respawnPoint = checkpoint.getPosition();
       }
     }
-    float x = respawnPoint.x;
-    float y = respawnPoint.y;
+    return respawnPoint;
+  }
 
-    RespawnComponent respawn = player.getComponent(RespawnComponent.class);
-    respawn.queueRespawn(new Vector2(x, y));
+  private void resetPlayerVelocity() {
+    if (player == null) {
+      return;
+    }
+    PhysicsComponent physics = player.getComponent(PhysicsComponent.class);
+    if (physics != null && physics.getBody() != null) {
+      physics.getBody().setLinearVelocity(0f, 0f);
+    }
   }
 
   public void toggleLevelMap() {}
@@ -338,7 +369,7 @@ public abstract class GameArea implements Disposable {
       viewportWidth = cameraComponent.getCamera().viewportWidth;
       viewportHeight = cameraComponent.getCamera().viewportHeight;
 
-      cameraComponent.resize(worldBoundX, worldBoundY, worldBoundX + 10);
+      cameraComponent.resize(worldBoundX, worldBoundY, (float) worldBoundX + 10);
       Entity camera = new Entity();
       camera.setPosition(worldBounds.x / 2, worldBounds.y / 2);
       cameraComponent.setTarget(camera);

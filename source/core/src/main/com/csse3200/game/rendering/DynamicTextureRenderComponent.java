@@ -12,7 +12,6 @@ public class DynamicTextureRenderComponent extends RenderComponent {
   private Texture texture;
   private TextureRegion textureRegion;
   private RotatableMapComponent rotateComponent;
-  private float rotation;
 
   public DynamicTextureRenderComponent(String texturePath) {
     setTexture(texturePath);
@@ -50,9 +49,9 @@ public class DynamicTextureRenderComponent extends RenderComponent {
   protected void draw(SpriteBatch batch) {
     Vector2 position = entity.getPosition();
     Vector2 scale = entity.getScale();
-    rotation = rotateComponent != null ? rotateComponent.getRotation() : 0f;
+    float rotation = rotateComponent != null ? rotateComponent.getRotation() : 0f;
     Color prevColor = batch.getColor().cpy();
-    float light = getDarkness();
+
     batch.draw(
         textureRegion,
         position.x,

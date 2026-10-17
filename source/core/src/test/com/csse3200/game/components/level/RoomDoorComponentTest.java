@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.CameraComponent;
 import com.csse3200.game.components.CombatStatsComponent;
@@ -28,9 +27,7 @@ class RoomDoorComponentTest {
     camera = mock(CameraComponent.class);
     entities = mock(EntityService.class);
     ServiceLocator.registerEntityService(entities);
-    door =
-        new RoomDoorComponent(
-            player, camera, new Vector2(115, 2.1f), new Rectangle(110, 0, 20, 11.25f), "Refuge");
+    door = new RoomDoorComponent(player, camera, new Vector2(115, 2.1f), "Refuge");
     Entity doorway = new Entity().addComponent(door);
     doorway.setPosition(16, 5);
     doorway.setScale(2.5f, 3.34f);

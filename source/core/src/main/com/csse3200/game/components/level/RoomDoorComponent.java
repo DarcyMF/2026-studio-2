@@ -1,7 +1,6 @@
 package com.csse3200.game.components.level;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.csse3200.game.components.CameraComponent;
 import com.csse3200.game.components.CombatStatsComponent;
@@ -15,16 +14,14 @@ public class RoomDoorComponent extends InputComponent {
   private final Entity player;
   private final CameraComponent camera;
   private final Vector2 destination;
-  private final Rectangle bounds;
   private final String label;
 
   public RoomDoorComponent(
-      Entity player, CameraComponent camera, Vector2 destination, Rectangle bounds, String label) {
+      Entity player, CameraComponent camera, Vector2 destination, String label) {
     super(9);
     this.player = player;
     this.camera = camera;
     this.destination = new Vector2(destination);
-    this.bounds = new Rectangle(bounds);
     this.label = label;
   }
 

@@ -293,7 +293,6 @@ public class ObstacleFactory {
         new Entity()
             .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
             .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
-    //// .addComponent(new ColliderComponent().setLayer(PhysicsLayer.WALL));
     wall.setScale(width, height);
 
     return wall;
@@ -306,14 +305,11 @@ public class ObstacleFactory {
    * @return ledge entity
    */
   public static Entity createLedge(PlatformConfig config) {
-    Entity ledge =
-        new Entity()
-            .addComponent(new TextureRenderComponent(config.textureFilepath))
-            .addComponent(new LedgeComponent())
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-            .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
-
-    return ledge;
+    return new Entity()
+        .addComponent(new TextureRenderComponent(config.textureFilepath))
+        .addComponent(new LedgeComponent())
+        .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+        .addComponent(new ColliderComponent().setLayer(PhysicsLayer.OBSTACLE));
   }
 
   /**
@@ -392,21 +388,18 @@ public class ObstacleFactory {
           default -> new Vector2(0, 0);
         };
 
-    Entity trap =
-        new Entity()
-            .addComponent(new DynamicTextureRenderComponent("images/traps/spiky_ball_trap.png"))
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-            .addComponent(new ActivatableComponent(config.getIds()))
-            .addComponent(
-                new SpawnerComponent(
-                    new ArrayList<>(List.of(() -> ObstacleFactory.createSpikyBall(direction))),
-                    config.getSpawnInterval(),
-                    -1,
-                    config.getInitialState(),
-                    config.getMode()))
-            .addComponent(new RotatableMapComponent(config.getRotation()));
-
-    return trap;
+    return new Entity()
+        .addComponent(new DynamicTextureRenderComponent("images/traps/spiky_ball_trap.png"))
+        .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+        .addComponent(new ActivatableComponent(config.getIds()))
+        .addComponent(
+            new SpawnerComponent(
+                new ArrayList<>(List.of(() -> ObstacleFactory.createSpikyBall(direction))),
+                config.getSpawnInterval(),
+                -1,
+                config.getInitialState(),
+                config.getMode()))
+        .addComponent(new RotatableMapComponent(config.getRotation()));
   }
 
   /**
@@ -454,14 +447,11 @@ public class ObstacleFactory {
     // ensure the hitbox always tries to collide with the player
     waterHitbox.getComponent(PhysicsComponent.class).getBody().setSleepingAllowed(false);
 
-    Entity water =
-        new Entity()
-            .addComponent(new TiledRenderComponent("images/terrain/Level_3/water tile.png", 1f))
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
-            .addComponent(new ActivatableComponent(true, new String[] {"waterStop", "waterStart"}))
-            .addComponent(new RisingWaterComponent(speed, initialHeight, waterHitbox));
-
-    return water;
+    return new Entity()
+        .addComponent(new TiledRenderComponent("images/terrain/Level_3/water tile.png", 1f))
+        .addComponent(new PhysicsComponent().setBodyType(BodyType.KinematicBody))
+        .addComponent(new ActivatableComponent(true, new String[] {"waterStop", "waterStart"}))
+        .addComponent(new RisingWaterComponent(speed, initialHeight, waterHitbox));
   }
 
   /**
@@ -478,13 +468,10 @@ public class ObstacleFactory {
             sData.spawns, sData.spawnInterval, sData.maxSpawns, sData.active, sData.mode);
     spawnerComp.setIds(config.completionIds);
 
-    Entity spawner =
-        new Entity()
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-            .addComponent(spawnerComp)
-            .addComponent(new ActivatableComponent(sData.active, config.ids));
-
-    return spawner;
+    return new Entity()
+        .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+        .addComponent(spawnerComp)
+        .addComponent(new ActivatableComponent(sData.active, config.ids));
   }
 
   /**
@@ -498,13 +485,10 @@ public class ObstacleFactory {
     collider.setLayer(PhysicsLayer.NPC);
     collider.setSensor(true);
 
-    Entity trigger =
-        new Entity()
-            .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
-            .addComponent(collider)
-            .addComponent(new TriggerComponent(c.ids, c.oneTimeActivation));
-
-    return trigger;
+    return new Entity()
+        .addComponent(new PhysicsComponent().setBodyType(BodyType.StaticBody))
+        .addComponent(collider)
+        .addComponent(new TriggerComponent(c.ids, c.oneTimeActivation));
   }
 
   private ObstacleFactory() {

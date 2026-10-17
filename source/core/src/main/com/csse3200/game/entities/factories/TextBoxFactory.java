@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 public class TextBoxFactory {
   private static final Logger logger = LoggerFactory.getLogger(TextBoxFactory.class);
 
-  public TextBoxFactory() {}
+  public TextBoxFactory() {
+    // Instances hold no state; createFromConfig uses the registered services.
+  }
 
   /**
    * Loads a text box config from the given JSON file and creates the resulting text box.
@@ -20,6 +22,19 @@ public class TextBoxFactory {
     TextConfig textConfig = FileLoader.readClass(TextConfig.class, filePath);
     if (textConfig == null) {
       logger.error("Failed to load text box config from {}", filePath);
+      return;
+    }
+    createTextBox(textConfig);
+  }
+
+  /**
+   * Creates a text box from an in-memory config (e.g. built by a terminal command preview).
+   *
+   * @param textConfig the text box config to display
+   */
+  public void createTextBox(TextConfig textConfig) {
+    if (textConfig == null) {
+      logger.error("Failed to create text box from null config");
       return;
     }
 
@@ -36,7 +51,8 @@ public class TextBoxFactory {
               textConfig.borderThickness,
               textConfig.fontPath,
               textConfig.getTextAlignment(),
-              textConfig.pages)
+              textConfig.pages,
+              textConfig.portraitPaths)
           .create();
     } catch (Exception e) {
       logger.error("Failed to create text box: {}", e.getMessage());

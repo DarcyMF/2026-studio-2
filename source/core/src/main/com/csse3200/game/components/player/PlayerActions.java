@@ -86,6 +86,7 @@ public class PlayerActions extends Component {
     entity.getEvents().addListener("updateLedgeDrop", this::setLedgeDropping);
     entity.getEvents().addListener("speedPotionUsed", this::applySpeedPotion);
     entity.getEvents().addListener("death", this::die);
+    entity.getEvents().addListener("revive", this::revive);
   }
 
   @Override
@@ -267,14 +268,12 @@ public class PlayerActions extends Component {
     if (grounded && hit.fixture != null) {
       // get raw data and check if it's user data is a proper BodyUserData
       Object userData = hit.fixture.getBody().getUserData();
-      if (userData instanceof BodyUserData data) {
+      if (userData instanceof BodyUserData data && data.entity != null) {
         // check the entity variable is set and access component data
-        if (data.entity != null) {
-          SlipperyPlatformComponent slipperyPlatform =
-              data.entity.getComponent(SlipperyPlatformComponent.class);
-          if (slipperyPlatform != null) {
-            decelerationTraction = slipperyPlatform.getSlipperiness();
-          }
+        SlipperyPlatformComponent slipperyPlatform =
+            data.entity.getComponent(SlipperyPlatformComponent.class);
+        if (slipperyPlatform != null) {
+          decelerationTraction = slipperyPlatform.getSlipperiness();
         }
       }
     }
@@ -288,6 +287,12 @@ public class PlayerActions extends Component {
     Body body = physicsComponent.getBody();
     Vector2 velocity = body.getLinearVelocity();
     body.setLinearVelocity(0f, velocity.y);
+    stopWalking();
+  }
+
+  /** Revives the player after a checkpoint restart so input and movement work again. */
+  void revive() {
+    dead = false;
     stopWalking();
   }
 
